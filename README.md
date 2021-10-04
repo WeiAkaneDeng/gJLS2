@@ -1,27 +1,4 @@
-# gJLS2
-
----
-title: "Introduction"
-output: 
-  rmarkdown::html_vignette:
-    toc: true
-    number_sections: true
-vignette: >
-  %\VignetteIndexEntry{Introduction}
-  %\VignetteEngine{knitr::knitr}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  autodep = TRUE
-)
-```
-
-
-# Overview
+# gJLS2 Overview
 
 A joint analysis of location-scale (JLS) can be a powerful tool in genome-wide association studies to uncover previously overlooked markers that influence the quantitative traits through both mean and variance (Soave et al., 2015; AJHG). The gJLS2 package offers updated software support to the existing gJLS <https://github.com/dsoave/gJLS/>), which was developed to deal specifically with sample correlation and group uncertainty (Soave and Sun, 2017; Biometrics). Although the work was originally motivated by genetic association studies, application of the proposed method, however, is not limited to this type of data. The gJLS testing framework is useful for other scientific studies where location and scale parameters are both of interest. 
 
