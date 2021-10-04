@@ -1,0 +1,20 @@
+#' X-chromosomal example using the 1000 Genomes Project data
+#'
+#' A dataset containing real genotypes of 5 X-chromosomal SNPs and simulated phenotype of 473 unrelated samples from the 1000 Genomes Project.
+#'
+#' @format A data frame with 473 rows and 11 variables:
+#' \describe{
+#'   \item{FID}{Family ID.}
+#'   \item{IID}{Individual ID.}
+#'   \item{PAT}{Paternal individual ID.}
+#'   \item{MAT}{Maternal individual ID.}
+#'   \item{SEX}{The genetic sex of a individual.}
+#'   \item{PHENOTYPE}{The quantitative trait value, simulated from a standard normal distribution.}
+#'   \item{rs5983012_A}{The genotype of SNP with MAF roughly equal to 0.1 in females.}
+#'   \item{rs4119090_G}{The genotype of SNP with MAF roughly equal to 0.2 in females.}
+#'   \item{rs5911042_T}{The genotype of SNP with MAF roughly equal to 0.3 in females.}
+#'   \item{rs986810_C}{The genotype of SNP with MAF roughly equal to 0.4 in females.}
+#'   \item{rs180495_G}{The genotype of SNP with MAF roughly equal to 0.45 in females.}
+#' }
+#' @source \url{https://www.internationalgenome.org/data/}
+"chrXdat"
