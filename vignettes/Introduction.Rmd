@@ -32,6 +32,17 @@ The package can also be conveniently used in 1) a bash script as an R plugin fun
 # Quick start
 
 
+To install either
+```{r setup1}
+install.packages("gJLS2")
+```
+or
+```{r setup2}
+#install.packages("devtools")
+devtools::install_github("WeiAkaneDeng/gJLS2")
+```
+
+
 To load the library in R, simply run:
 ```{r setup}
 library(gJLS2)
