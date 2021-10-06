@@ -68,7 +68,7 @@ gJLS2 <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=T
 
   suppressMessages(merged_dat <- plyr::join(locP, scalP))
 
-  merged_dat$gJLS <- 1-pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4)
+  merged_dat$gJLS <- pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4, lower.tail=FALSE)
   rownames(merged_dat) <- NULL
 
   return(merged_dat)

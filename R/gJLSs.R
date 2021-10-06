@@ -56,7 +56,7 @@ gJLS2s <- function(gL, gS){
         stop("gS is a data.frame but does not contain the column names 'SNP' and 'gL'.")
 
       suppressMessages(merged_dat <- plyr::join(gL, gS))
-      merged_dat$gJLS <- 1-pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4)
+      merged_dat$gJLS <- pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4, lower.tail=FALSE)
 
     } else if (!is.null(dim(gL))){
 
@@ -64,14 +64,14 @@ gJLS2s <- function(gL, gS){
         stop("Please make sure the two input p-value data.frame/vectors are of the same length.")
 
       merged_dat <- cbind(gL, "gS" = gS)
-      merged_dat$gJLS <- 1-pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4)
+      merged_dat$gJLS <- pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4, lower.tail = FALSE)
 
     } else {
 
       if (length(gL)!= dim(gS)[1])
         stop("Please make sure the two input p-value data.frame/vectors are of the same length.")
       merged_dat <- cbind("gL" = gL, gS)
-      merged_dat$gJLS <- 1-pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4)
+      merged_dat$gJLS <- pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4, lower.tail = FALSE)
 
     }
 }
