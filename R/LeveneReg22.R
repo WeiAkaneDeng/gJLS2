@@ -62,7 +62,7 @@
 #'
 #'
 #'
-#' @author Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+#' @author Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 #'
 #' @references Soave D, Sun L. (2017). A generalized Levene's scale test for variance heterogeneity in the presence of sample correlation and group uncertainty. \emph{Biometrics}. \strong{73}(3):960-971. \doi{10.1111/biom.12651}. PMID: 28099998.
 #'

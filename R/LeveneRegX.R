@@ -34,7 +34,7 @@
 #' leveneRegX_per_SNP(geno_one=genDAT, SEX=sex, Y=Y, genotypic=TRUE)
 #' leveneRegX_per_SNP(geno_one=genDAT, SEX=sex, Y=Y, loc_alg="OLS")
 #'
-#' @author Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+#' @author Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 #'
 #' @references Deng WQ, Mao S, Kalnapenkis A, Esko T, Magi R, Pare G, Sun L. (2019) Analytical strategies to include the X-chromosome in variance heterogeneity analyses: Evidence for trait-specific polygenic variance structure. \emph{Genet Epidemiol}. \strong{43}(7):815-830. \doi{10.1002/gepi.22247}. PMID:31332826.
 #' @references Gastwirth JL, Gel YR, Miao W. (2009). The Impact of Levene's Test of Equality of Variances on Statistical Theory and Practice. \emph{Statistical Science}. \strong{24}(3) 343-360, \doi{10.1214/09-STS301}.

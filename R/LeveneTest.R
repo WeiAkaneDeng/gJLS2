@@ -40,7 +40,7 @@
 #' @note We recommend to quantile-normally transform \code{Y} to avoid ‘scale-effect’ where
 #' the variance values tend to be proportional to mean values when stratified by \code{G}.
 #'
-#' @author Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+#' @author Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 #'
 #' @references  Levene H. (1960) Robust tests for equality of variances. In \emph{Contributions to Probability and Statistics: Essays in Honor of Harold Hotelling} eds:I. Olkin, S.G. Ghurye, W. Hoeffding, W.G. Madow & H.B.Mann, pp.278-292. Stanford: Stanford University Press.
 #'

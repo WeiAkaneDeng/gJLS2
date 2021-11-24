@@ -9,8 +9,6 @@
 
 R CMD Rserve --RS-port 8221
 
-#plink="/Users/weideng/Documents/Software/plink_mac_20200921/plink" 
-
 plink --bfile ./input/chrX_5_snp \
 --R run_gJLS2PLINK_Xchr.R \
 --pheno ./input/Pheno.txt \

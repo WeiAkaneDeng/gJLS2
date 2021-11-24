@@ -16,6 +16,8 @@
 #' @param cov.structure optional: should be one of standard classes of correlation structures listed in \code{corClasses} from \pkg{R} package \pkg{nlme}. See \code{?corClasses}. The most commonly used option is \code{corCompSymm} for a compound symmetric correlation structure. This option currently only applies to autosomal SNPs.
 #' @param clust optional: a factor indicating the grouping of samples; it should have at least two distinct values. It could be the family ID (FID) for family studies. This option currently only applies to autosomal SNPs.
 #' @param XchrMethod an integer taking values 0 (reports all models), 1.1, 1.2, 2, 3, for the choice of X-chromosome location association testing models; for more details, see \code{\link{locReg}}.
+#' @param nCores optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}.
+#'
 #'
 #' @importFrom methods is
 #' @importFrom stats resid
@@ -45,13 +47,13 @@
 #' gJLS2(GENO=genDAT, SEX=sex, Y=y, COVAR=covar , Xchr=TRUE)
 #'
 #'
-#' @author Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+#' @author  Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 #'
 #' @references Soave D, Corvol H, Panjwani N, Gong J, Li W, Boëlle PY, Durie PR, Paterson AD, Rommens JM, Strug LJ, Sun L. (2015). A Joint Location-Scale Test Improves Power to Detect Associated SNPs, Gene Sets, and Pathways. \emph{American Journal of Human Genetics}. 2015 Jul 2;\strong{97}(1):125-38. \doi{10.1016/j.ajhg.2015.05.015}. PMID: 26140448; PMCID: PMC4572492.
 
 
 
-gJLS2 <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=TRUE, loc_alg = "LAD", related = FALSE, cov.structure = "corCompSymm", clust = NULL, genotypic = FALSE,  origLev = FALSE, centre = "median", XchrMethod = 3){
+gJLS2 <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=TRUE, loc_alg = "LAD", related = FALSE, cov.structure = "corCompSymm", clust = NULL, genotypic = FALSE,  origLev = FALSE, centre = "median", XchrMethod = 3, nCores=1){
 
   if (missing(GENO))
     stop("The geno_onetype input is missing.")
@@ -62,9 +64,9 @@ gJLS2 <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=T
   if (class(Y)!="numeric")
     stop("Please make sure the quantitaitve trait is a numeric vector.")
 
-  suppressWarnings(locP <- locReg(GENO=GENO, Y = Y, SEX=SEX, COVAR=COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust))
+  suppressWarnings(locP <- locReg(GENO=GENO, Y = Y, SEX=SEX, COVAR=COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust, nCores = nCores))
 
-  suppressWarnings(scalP <- scaleReg(GENO=GENO, Y = Y, COVAR = COVAR, SEX = SEX, Xchr = Xchr, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic,  origLev = origLev, centre = centre))
+  suppressWarnings(scalP <- scaleReg(GENO=GENO, Y = Y, COVAR = COVAR, SEX = SEX, Xchr = Xchr, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic,  origLev = origLev, centre = centre, nCores = nCores))
 
   suppressMessages(merged_dat <- plyr::join(locP, scalP))
 

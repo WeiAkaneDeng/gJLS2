@@ -16,11 +16,14 @@
 #' @param related optional: a logical indicating whether the samples should be treated as related; if \code{TRUE} while no relatedness covariance information is given, it is then estimated under a \code{cov.structure} and assumes this structure among all within-group errors pertaining to the same pair/cluster if specified using \code{clust}. This option currently only applies to autosomal SNPs.
 #' @param cov.structure optional: should be one of standard classes of correlation structures listed in \code{corClasses} from \pkg{R} package \pkg{nlme}. See \code{?corClasses}. The most commonly used option is \code{corCompSymm} for a compound symmetric correlation structure. This option currently only applies to autosomal SNPs.
 #' @param clust optional: a factor indicating the grouping of samples; it should have at least two distinct values. It could be the family ID (FID) for family studies. This option currently only applies to autosomal SNPs.
+#' @param nCores optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}.
 #'
 #' @import stats
 #' @import quantreg
 #' @import methods
 #' @import nlme
+#' @import parallel
+#'
 #'
 #' @return a vector of Levene's test regression p-values according to the models
 #' specified.
@@ -36,12 +39,18 @@
 #' covar <- matrix(rnorm(N*10), ncol=10)
 #'
 #' # vanilla example:
+#'
 #' scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar)
 #' scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, genotypic=TRUE)
 #' scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, origLev = TRUE)
 #' scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, origLev = TRUE, SEX=sex)
 #'
-#' @author Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+#' largerG <- matrix(rep(genoDAT,each=100), ncol=100, byrow=TRUE)
+#' system.time(scaleReg(GENO=largerG, nCores=1, Y=Y, COVAR=covar))
+#' system.time(scaleReg(GENO=largerG, nCores=2, Y=Y, COVAR=covar))
+#' system.time(scaleReg(GENO=replicate(100, genoDAT, simplify=FALSE), Y=Y, COVAR=covar, origLev = TRUE, SEX=sex, nCores=2))
+#'
+#' @author Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 #'
 #' @references Deng WQ, Mao S, Kalnapenkis A, Esko T, Magi R, Pare G, Sun L. (2019) Analytical strategies to include the X-chromosome in variance heterogeneity analyses: Evidence for trait-specific polygenic variance structure. \emph{Genet Epidemiol}. \strong{43}(7):815-830. \doi{10.1002/gepi.22247}. PMID:31332826.
 #' @references Gastwirth JL, Gel YR, Miao W. (2009). The Impact of Levene's Test of Equality of Variances on Statistical Theory and Practice." \emph{Statistical Science}. \strong{24}(3) 343-360, \doi{10.1214/09-STS301}.
@@ -50,7 +59,7 @@
 
 
 
-scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=FALSE, loc_alg = "LAD", related = FALSE, cov.structure = "corCompSymm", clust = NULL, genotypic = FALSE,  origLev = FALSE, centre = "median"){
+scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=FALSE, loc_alg = "LAD", related = FALSE, cov.structure = "corCompSymm", clust = NULL, genotypic = FALSE,  origLev = FALSE, centre = "median", nCores=1){
 
   if (missing(Y))
       stop("The quantitative trait input is missing.")
@@ -63,6 +72,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
   if (!("matrix" %in% class(GENO) | "data.frame" %in% class(GENO) | "list" %in% class(GENO) | "vector" %in% class(GENO) | "integer" %in% class(GENO) | "numeric" %in% class(GENO))){
     stop("Please make sure the genotype data is an object of vector, matrix, data.frame for discrete genotypes or a list for dosage genotypes.")
+  }
+
+  numCores <- parallel::detectCores()
+  if (nCores > numCores){
+    stop("Please make sure the nCores specified is not larger than the available cores detected.")
   }
 
 
@@ -138,7 +152,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
     if (Xchr) {
 
-      output_test <- apply(GENO, 2, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) NULL))
+      if (nCores > 1) {
+      output_test <- do.call(rbind, mclapply(1:dim(GENO)[2], function(ee) tryCatch(leveneRegX_per_SNP(geno_one=GENO[,ee], SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) NULL), mc.cores=nCores))
+      } else {
+      output_test <- apply(GENO, 2, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic, nCores = nCores), error=function(e) NULL))
+      }
 
       p_out <- output_test
       change_to_NA <- sapply(output_test, is.null)
@@ -157,7 +175,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
       if (origLev) {
 
-        output_test2 <- apply(GENO, 2, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL))
+        if (nCores > 1) {
+        output_test2 <- do.call(rbind, mclapply(1:dim(GENO)[2], function(ee) tryCatch(leveneTests_per_SNP(geno_one = GENO[,ee], SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL), mc.cores=nCores))
+        } else {
+       output_test2 <- apply(GENO, 2, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL))
+        }
 
         p_out2 <- output_test2
         change_to_NA <- sapply(output_test2, is.null)
@@ -183,9 +205,9 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
           }
         } else {
           if (sum(change_to_NA) == length(output_test2)) {
-            outputRes <-  cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out))
+            outputRes <- cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out))
           } else {
-          outputRes <-  cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out), p_out2)
+          outputRes <- cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out), p_out2)
           }
         }
 
@@ -203,8 +225,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
     } else {
 
+      if (nCores > 1) {
+       output_test <- do.call(rbind, mclapply(1:dim(GENO)[2], function(ee) tryCatch(leveneRegA_per_SNP(geno_one = GENO[,ee], Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic), error=function(e) NULL), mc.cores=nCores))
+      } else {
       output_test <- apply(GENO, 2, function(ee) tryCatch(leveneRegA_per_SNP(geno_one = ee, Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic), error=function(e) NULL))
-
+      }
       p_out <- output_test
       change_to_NA <- sapply(output_test, is.null)
 
@@ -222,8 +247,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
       if (origLev) {
 
-        output_test2 <- apply(GENO, 2, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL))
-
+        if (nCores > 1) {
+          output_test2 <- do.call(rbind, mclapply(1:dim(GENO)[2], function(ee) tryCatch(leveneTests_per_SNP(geno_one = GENO[,ee], SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL), mc.cores=nCores))
+        } else {
+          output_test2 <- apply(GENO, 2, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL))
+            }
         p_out2 <- output_test2
         change_to_NA <- sapply(output_test2, is.null)
 
@@ -249,9 +277,9 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
         } else {
           if (sum(change_to_NA) == length(output_test2)){
-          outputRes <-  cbind(data.frame("SNP" = colnames(GENO), "gS" = p_out))
+          outputRes <- cbind(data.frame("SNP" = colnames(GENO), "gS" = p_out))
           } else {
-          outputRes <-  cbind(data.frame("SNP" = colnames(GENO), "gS" = p_out), p_out2)
+          outputRes <- cbind(data.frame("SNP" = colnames(GENO), "gS" = p_out), p_out2)
           }
 
         }
@@ -274,7 +302,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
       if (Xchr) {
 
+        if (nCores > 1) {
+        output_test <- mclapply(GENO, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic, mc.cores=nCores), error=function(e) NULL))
+           } else {
         output_test <- lapply(GENO, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) NULL))
+        }
 
         p_out <- output_test
         change_to_NA <- unlist(lapply(output_test, is.null))
@@ -289,7 +321,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
       if (origLev) {
 
+      if (nCores > 1) {
+      output_test2 <- mclapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed, mc.cores=nCores), error=function(e) NULL))
+        } else {
       output_test2 <- lapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL))
+         }
 
       p_out2 <- output_test2
       change_to_NA <- unlist(lapply(output_test2, is.null))
@@ -312,10 +348,10 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
         } else {
 
-          if (sum(change_to_NA) == length(output_test2)){
-            outputRes <-  cbind(data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = unlist(p_out)))
+       if (sum(change_to_NA) == length(output_test2)){
+          outputRes <- cbind(data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = unlist(p_out)))
           } else {
-          outputRes <-  cbind(data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = unlist(p_out)), do.call(rbind, p_out2))
+          outputRes <- cbind(data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = unlist(p_out)), do.call(rbind, p_out2))
           }
         }
 
@@ -331,7 +367,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
     } else {
 
+      if (nCores > 1) {
+       output_test <- mclapply(GENO, function(ee) tryCatch(leveneRegA_per_SNP(geno_one = ee, Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic, mc.cores=nCores), error=function(e) NULL))
+      } else {
       output_test <- lapply(GENO, function(ee) tryCatch(leveneRegA_per_SNP(geno_one = ee, Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic), error=function(e) NULL))
+      }
 
       p_out <- output_test
       change_to_NA <- unlist(lapply(output_test, is.null))
@@ -346,7 +386,11 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
       if (origLev) {
 
+        if (nCores > 1) {
+        output_test2 <- mclapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed, mc.cores=nCores), error=function(e) NULL))
+        } else {
         output_test2 <- lapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL))
+        }
 
         p_out2 <- output_test2
         change_to_NA <- unlist(lapply(output_test2, is.null))
@@ -369,9 +413,9 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
         } else {
           if (sum(change_to_NA) == length(output_test2)){
-            outputRes <-  cbind(data.frame("SNP" = names(GENO), "gS" = unlist(p_out)))
+            outputRes <- cbind(data.frame("SNP" = names(GENO), "gS" = unlist(p_out)))
           } else {
-          outputRes <-  cbind(data.frame("SNP" = names(GENO), "gS" = unlist(p_out)), do.call(rbind, p_out2))
+          outputRes <- cbind(data.frame("SNP" = names(GENO), "gS" = unlist(p_out)), do.call(rbind, p_out2))
           }
         }
 

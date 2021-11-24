@@ -17,10 +17,13 @@
 #' model 2: Y~G+S+GxSex; with p-value given by comparing Y~G+Sex+GxSex vs. Y~Sex (the additively coded G is robust to X-chromosome inactivation uncertainty). This is also the option for dosage genotypes.
 #' model 3 (recommended): Y~G+G_D+S+GxSex; with p-value given by comparing Y ~ G+G_D+Sex+GxSex vs. Y ~ Sex (G_D is an indicator for female heterozygotes, this model is robust to X-chromosome inactivation uncertainty and skewed inactivation). For imputed data in the form of genotypic probabilities, the model becomes: Y ~ G1 + G2 + G1xSex + Sex, where G1 and G2 are the genotypic probabilities for the heterozygote and alternative allele homozygote.
 #'
+#' @param nCores optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}.
+#'
 #' @import methods
 #' @import stats
 #' @import quantreg
 #' @import nlme
+#' @import parallel
 #'
 #' @return a vector of location association \emph{p}-values for each SNP.
 #' @export locReg
@@ -52,6 +55,12 @@
 #' SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,
 #' clust = rep(c(1:50), 2))
 #'
+#'
+#' largerG <- matrix(rep(genDAT,each=100), ncol=100, byrow=TRUE)
+#' system.time(locReg(GENO=largerG, SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,clust = rep(c(1:50), 2), nCores=3))
+#' system.time(locReg(GENO=largerG, SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,clust = rep(c(1:50), 2), nCores=1))
+#'
+#'
 #' # Xchr data example:
 #' genDAT1 <- rep(NA, N)
 #' genDAT1[sex==1] <- rbinom(sum(sex==1), 1, 0.5)
@@ -59,7 +68,7 @@
 #' locReg(GENO=genDAT1, SEX=sex, Y=y, COVAR=COVAR, Xchr=TRUE)
 #'
 #'
-#' @author Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+#' @author Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 #'
 #'
 #' @references Chen B, Craiu RV, Sun L. (2020) Bayesian model averaging for the X-chromosome inactivation dilemma in genetic association study. \emph{Biostatistics}. \strong{21}(2):319-335. \doi{10.1093/biostatistics/kxy049}. PMID: 30247537.
@@ -67,7 +76,7 @@
 #'
 
 
-locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3, transformed = FALSE, related = FALSE, cov.structure = "corCompSymm", clust = NULL){
+locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3, transformed = FALSE, related = FALSE, cov.structure = "corCompSymm", clust = NULL, nCores=1){
 
   if (missing(GENO))
     stop("The genotype input is missing.")
@@ -82,14 +91,31 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
   if (class(Y)!="numeric")
     stop("Please make sure the quantitaitve trait is a numeric vector.")
 
+  numCores <- parallel::detectCores()
+  if (nCores > numCores){
+    stop("Please make sure the nCores specified is not larger than the available cores detected.")
+  }
+
 
   if ("list" %in% class(GENO)){
 
     ### multiple
-    output_test <- lapply(GENO, function(gg) tryCatch(locReg_per_SNP(geno_one = gg, SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) NULL))
+
+    if (nCores > 1) {
+      output_test <- mclapply(GENO, function(gg) tryCatch(locReg_per_SNP(geno_one = gg, SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) NULL), mc.cores=nCores)
+    } else {
+      output_test <- lapply(GENO, function(gg) tryCatch(locReg_per_SNP(geno_one = gg, SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) NULL))
+    }
 
     output <- output_test
     change_to_NA <- unlist(lapply(output_test, is.null))
+
+    if (length(change_to_NA)==0){
+      error_msg <- tryCatch(locReg_per_SNP(geno_one = GENO[[1]], SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) e)
+      print(error_msg)
+      print("Analysis terminated. Please debug the error message.")
+
+      } else {
 
     if (sum(change_to_NA) == length(output_test)){
       output <- list(NA)[rep(1, length(output_test))]
@@ -106,24 +132,32 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
     }
 
     if (Xchr) {
-
       outputRes <- data.frame("CHR" = "X", "SNP" = snp_name, "gL" = do.call(rbind, output))
-
     } else {
-
       outputRes <- data.frame("SNP" = snp_name, "gL" = do.call(rbind, output))
-
     }
-
-  }
+      rownames(outputRes) <- NULL
+      return(outputRes)
+      }
+}
 
 
   if ("data.frame" %in% class(GENO) | "matrix" %in% class(GENO)){
 
+    if (nCores > 1) {
+      output_test <- do.call(rbind, mclapply(1:dim(GENO)[2], function(gg) tryCatch(locReg_per_SNP(geno_one = GENO[,gg], SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) NULL), mc.cores=nCores))
+    } else {
     output_test <- apply(GENO, 2, function(gg) tryCatch(locReg_per_SNP(geno_one = gg, SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) NULL))
+    }
 
     output <- output_test
     change_to_NA <- sapply(output_test, is.null)
+
+    if (length(change_to_NA)==0){
+      error_msg <- tryCatch(locReg_per_SNP(geno_one = GENO[,1], SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) e)
+      print(error_msg)
+      print("Analysis terminated. Please debug the error message.")
+    } else {
 
     if (sum(change_to_NA) == length(output_test)){
       output <- rep(NA, length(output_test))
@@ -144,16 +178,15 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
     }
 
     if (Xchr) {
-
       outputRes <- data.frame("CHR" = "X", "SNP" = snp_name, "gL" = output)
-
     } else {
-
       outputRes <- data.frame("SNP" = snp_name, "gL" = output)
-
+      }
+    rownames(outputRes) <- NULL
+    return(outputRes)
     }
-
   }
+
 
   if ("vector" %in% class(GENO) | "integer" %in% class(GENO) |  "numeric" %in% class(GENO)) {
 
@@ -167,18 +200,16 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
     }
 
     if (Xchr) {
-
       outputRes <-  data.frame("CHR" = "X", "SNP" = snp_name, "gL" = output)
-
     } else {
-
       outputRes <-  data.frame("SNP" = snp_name, "gL" = output)
-
     }
-}
+    rownames(outputRes) <- NULL
+    return(outputRes)
+  }
 
-  rownames(outputRes) <- NULL
-  return(outputRes)
+
+
 }
 
 
@@ -230,6 +261,7 @@ locReg_per_SNP <- function(geno_one, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, Xc
   }
 
   N <- length(Y)
+
   COVAR_use <- NULL
   ## Replaced by either COVAR, or COVAR, SEX
   ## for autosome use COVAR_use, for X-chromosome use COVAR
