@@ -281,7 +281,7 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
         change_to_NA <- sapply(output_test2, is.null)
 
         if (length(change_to_NA)==0){
-          error_msg <- tryCatch(leveneTests_per_SNP(geno_one=GENO[,1],geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) e)
+          error_msg <- tryCatch(leveneTests_per_SNP(geno_one=GENO[,1], SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) e)
           print(error_msg)
           try(if(length(change_to_NA)==0) stop("Analysis terminated (Levene's Test for Autosome on a matrix of GENO). Please debug the error message."))
 

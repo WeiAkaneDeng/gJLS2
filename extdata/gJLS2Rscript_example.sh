@@ -12,7 +12,6 @@ Rscript run_gJLS2.R --bfile ./input/chrX_5_snp \
 
 
 
-
 ## R scripts for summary stats:
 
 Rscript run_gJLS2.R --sumfile ./input/GIANT_BMI_chr16_gJLS_summary.txt \
