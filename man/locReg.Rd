@@ -79,10 +79,12 @@ locReg(GENO=list("SNP1"= genDAT, "SNP2" = genDAT[sample(1:100)]),
 SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,
 clust = rep(c(1:50), 2))
 
-
-largerG <- matrix(rep(genDAT,each=100), ncol=100, byrow=TRUE)
-system.time(locReg(GENO=largerG, SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,clust = rep(c(1:50), 2), nCores=3))
-system.time(locReg(GENO=largerG, SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,clust = rep(c(1:50), 2), nCores=1))
+# parallel demonstration; NOT RUN
+#largerG <- matrix(rep(genDAT,each=100), ncol=100, byrow=TRUE)
+#system.time(locReg(GENO=largerG, SEX=sex, Y=as.numeric(yy),
+#COVAR=COVAR, related = TRUE,clust = rep(c(1:50), 2), nCores=3))
+#system.time(locReg(GENO=largerG, SEX=sex, Y=as.numeric(yy),
+#COVAR=COVAR, related = TRUE,clust = rep(c(1:50), 2), nCores=1))
 
 
 # Xchr data example:

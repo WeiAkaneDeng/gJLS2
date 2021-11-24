@@ -75,10 +75,12 @@ scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, genotypic=TRUE)
 scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, origLev = TRUE)
 scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, origLev = TRUE, SEX=sex)
 
-largerG <- matrix(rep(genoDAT,each=100), ncol=100, byrow=TRUE)
-system.time(scaleReg(GENO=largerG, nCores=1, Y=Y, COVAR=covar))
-system.time(scaleReg(GENO=largerG, nCores=2, Y=Y, COVAR=covar))
-system.time(scaleReg(GENO=replicate(100, genoDAT, simplify=FALSE), Y=Y, COVAR=covar, origLev = TRUE, SEX=sex, nCores=2))
+# parallel demonstration; NOT RUN
+#largerG <- matrix(rep(genoDAT,each=100), ncol=100, byrow=TRUE)
+#system.time(scaleReg(GENO=largerG, nCores=1, Y=Y, COVAR=covar))
+#system.time(scaleReg(GENO=largerG, nCores=2, Y=Y, COVAR=covar))
+#system.time(scaleReg(GENO=replicate(100, genoDAT, simplify=FALSE),
+#Y=Y, COVAR=covar, origLev = TRUE, SEX=sex, nCores=2))
 
 }
 \references{

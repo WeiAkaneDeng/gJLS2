@@ -142,7 +142,7 @@ cat(paste("Writing results to output", out, "\n"))
 
 iter <- round(dim(geno_dat)[2]/chunk_size)
 
-final_output <- gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread)
+final_output <- gJLS2(GENO = geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread)
 
 write.table(final_output, file = out, col.names=T, row.names=F, quote=F, sep="\t")
 

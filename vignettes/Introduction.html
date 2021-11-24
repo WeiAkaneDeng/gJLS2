@@ -373,13 +373,13 @@ genPP &lt;- rbind(rdirichlet(sum(geno==0),c(a,(1-a)/2,(1-a)/2)),
         rdirichlet(sum(geno==1),c((1-a)/2,a,(1-a)/2)),
         rdirichlet(sum(geno==2),c((1-a)/2,(1-a)/2,a)))
 head(genPP);
-#&gt;            [,1]        [,2]         [,3]
-#&gt; [1,] 0.55283840 0.286662715 0.1604988856
-#&gt; [2,] 0.95855431 0.040981510 0.0004641806
-#&gt; [3,] 0.31058243 0.002391297 0.6870262772
-#&gt; [4,] 0.85809211 0.141732433 0.0001754581
-#&gt; [5,] 0.04559876 0.033373396 0.9210278430
-#&gt; [6,] 0.11477787 0.007539969 0.8776821607
+#&gt;              [,1]        [,2]       [,3]
+#&gt; [1,] 9.679015e-02 0.005539756 0.89767009
+#&gt; [2,] 7.608153e-07 0.312489809 0.68750943
+#&gt; [3,] 7.900968e-01 0.169603206 0.04029996
+#&gt; [4,] 2.909121e-01 0.223744150 0.48534374
+#&gt; [5,] 2.143662e-01 0.564383222 0.22125059
+#&gt; [6,] 1.953248e-02 0.508152364 0.47231516
 summary(rowSums(genPP))
 #&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #&gt;       1       1       1       1       1       1
@@ -394,13 +394,13 @@ y &lt;- rnorm(N)
 covar &lt;- matrix(rnorm(N*10), ncol=10)
 gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, genotypic = TRUE) ## geno probabilities
 #&gt;     SNP        gL        gS      gJLS
-#&gt; 1 SNP_1 0.2751495 0.7257143 0.5213722
+#&gt; 1 SNP_1 0.7628413 0.2097766 0.4532612
 gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar) ## geno dosage
 #&gt;     SNP        gL        gS      gJLS
-#&gt; 1 SNP_1 0.2751495 0.4259851 0.3684825
+#&gt; 1 SNP_1 0.7628413 0.1539806 0.3690249
 try(gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, origLev = TRUE)) ## cannot perform Levene&#39;s test
 #&gt;     SNP        gL        gS      gJLS
-#&gt; 1 SNP_1 0.2751495 0.4259851 0.3684825
+#&gt; 1 SNP_1 0.7628413 0.1539806 0.3690249
 </code></pre>
 
 <h2>Related samples</h2>
@@ -408,8 +408,8 @@ try(gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, origLev = TRUE)) ## canno
 <p>The <tt>related=TRUE</tt> option can be used to deal with related samples, usually indicated by the shared family ID (FID) in the PLINK tt&gt;.fam</tt> files. A cluster assignment can be specified, for example, using the FID as a factor. If the <tt>clust</tt> argument is not specified, then the entire samples are treated as a single group constrained by a single correlation structure. The default option assumes a compound symmetric correlation structure whereby all pairwise samples within the same cluster/group have the same correlation. The argument <tt>cov.structure</tt> can also take other standard classes of correlation structures listed in <tt>corClasses</tt> from <tt>R</tt> package <tt>nlme</tt>. See <tt>?corClasses</tt>. This option currently only applies to autosomal SNPs.</p>
 
 <pre><code class="r">gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, related=TRUE, clust = rep(1:3, c(N/2, N/4, N/4)))
-#&gt;   SNP         gL         gS       gJLS
-#&gt; 1 SNP 0.03389322 0.03117351 0.00829696
+#&gt;   SNP        gL gS gJLS
+#&gt; 1 SNP 0.1762559 NA   NA
 </code></pre>
 
 <h2>X-chromosome SNPs</h2>
@@ -422,23 +422,23 @@ genoX[sex==1] &lt;- rbinom(sum(sex==1), 1, 0.3)
 table(genoX, sex)
 #&gt;      sex
 #&gt; genoX   1   2
-#&gt;     0 109  78
-#&gt;     1  50  51
-#&gt;     2   0  12
+#&gt;     0 121  58
+#&gt;     1  44  63
+#&gt;     2   0  14
 </code></pre>
 
 <p>For X-chromosome analyses, the option <tt>Xchr</tt> must be set to <tt>TRUE</tt> as the function cannot distinguish autosomal genotype ro X-chromosome genotype data. For the pseudo-autosomal regions of X-chromosome, this option can be set to <tt>FALSE</tt>.</p>
 
 <pre><code class="r">locReg(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #&gt;   CHR SNP        gL
-#&gt; 1   X SNP 0.4117172
+#&gt; 1   X SNP 0.8256308
 </code></pre>
 
 <p>The scale and joint analysis can be performed similarly following the default options of inverse-normal transformation (<tt>transformed=TRUE</tt>), using least absolute devation (LAD) to estimate residuals in the first stage (<tt>loc_alg=&ldquo;LAD&rdquo;</tt>), and assuming an additive model (<tt>genotypic=FALSE</tt>):</p>
 
 <pre><code class="r">gJLS2(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #&gt;   CHR SNP        gL        gS      gJLS
-#&gt; 1   X SNP 0.4351126 0.2307068 0.3311406
+#&gt; 1   X SNP 0.8279324 0.1796734 0.4322055
 </code></pre>
 
 <h2>Additional options</h2>
@@ -448,8 +448,8 @@ table(genoX, sex)
 <p>As an additional option, the sex-stratified scale association <em>p</em>-values may also be reported by specifying <tt>origLev=TRUE</tt>, which gives the sex-specific (original) Levene&#39;s test <em>p</em>-value. This can then be combined with sex-stratified location association p-values for a sex-stratified gJLS analysis using the <tt>gJLSs</tt> function.</p>
 
 <pre><code class="r">gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, origLev=TRUE)
-#&gt;   SNP        gL        gS       Lev Flagged      gJLS
-#&gt; 1 SNP 0.0434283 0.9603214 0.8667675       0 0.1742078
+#&gt;   SNP        gL         gS       Lev Flagged       gJLS
+#&gt; 1 SNP 0.1725146 0.03558213 0.2524514       0 0.03740264
 </code></pre>
 
 <h1>A note on genome-wide analyses using R Plugin and R scripts</h1>
@@ -460,210 +460,23 @@ table(genoX, sex)
 
 <h2>Rscript</h2>
 
-<p>The below Rscript can serve as a starting point to customized the analyses for each user. The arguments available in this Rscript included the very basic ones and additional ones can be added easily. A useful option is &ldquo;write&#39;&#39;, where the user can specify the chunk size for results to be written in the file as the program runs.</p>
+<p>The Rscript (&ldquo;run_gJLS2.R&rdquo;) in the extdata folder can serve as a starting point to customized the analyses for each user. The arguments available in this Rscript included the very basic ones and additional ones can be added easily. A useful option is &ldquo;write&rdquo;, where the user can specify the chunk size for results to be written in the file as the program runs. Another important feature is the &ldquo;nThreads&rdquo; option, where the user can take advantage of the multiple cores and processors available from high performance computing clusters.</p>
 
-<pre><code class="r">#!/usr/bin/env Rscript
+<p>As an example, in the extdata directory, the Rscript can be excuted on the command line and output the results:</p>
 
-if(&quot;optparse&quot; %in% rownames(installed.packages()) == FALSE) {
-print(&quot;optparse not installed, trying to intall now ...&quot;)
-install.packages(&quot;optparse&quot;, repos=&#39;http://cran.us.r-project.org&#39;)
-}
-
-require(&quot;optparse&quot;)
-
-option_list = list(
-  make_option(c(&quot;-b&quot;, &quot;--bfile&quot;), type=&quot;character&quot;, default=NULL, 
-              help=&quot;genotype dataset file name&quot;, metavar=&quot;character&quot;),
-  make_option(c(&quot;-p&quot;, &quot;--pfile&quot;), type=&quot;character&quot;, default=NULL, 
-              help=&quot;pheno and covariate dataset file name&quot;, metavar=&quot;character&quot;),
-  make_option(c(&quot;-m&quot;, &quot;--pheno&quot;), type=&quot;character&quot;, default=NULL, 
-              help=&quot;phenotype name&quot;, metavar=&quot;vector&quot;),
-  make_option(c(&quot;-c&quot;, &quot;--covar&quot;), type=&quot;character&quot;, default=NULL, 
-              help=&quot;covariate name&quot;, metavar=&quot;vector&quot;),
-  make_option(c(&quot;-q&quot;, &quot;--center&quot;), type=&quot;character&quot;, default=&quot;median&quot;, 
-              help=&quot;center option in gJLS2&quot;, metavar=&quot;character&quot;),
-  make_option(c(&quot;-g&quot;, &quot;--genotypic&quot;), type=&quot;logical&quot;, default=&quot;TRUE&quot;, 
-              help=&quot;genotypic option in gJLS2&quot;, metavar=&quot;character&quot;),
-  make_option(c(&quot;-t&quot;, &quot;--transform&quot;), type=&quot;logical&quot;, default=&quot;FALSE&quot;, 
-              help=&quot;transform option in gJLS2&quot;, metavar=&quot;character&quot;),
-  make_option(c(&quot;-x&quot;, &quot;--Xchr&quot;), type=&quot;logical&quot;, default=&quot;FALSE&quot;, 
-              help=&quot;Xchr option in gJLS2&quot;, metavar=&quot;character&quot;),
-  make_option(c(&quot;-w&quot;, &quot;--write&quot;), type=&quot;integer&quot;, default= 50, 
-              help=&quot;writing in chunk size&quot;, metavar=&quot;integer&quot;),
-  make_option(c(&quot;-o&quot;, &quot;--out&quot;), type=&quot;character&quot;, default=&quot;out.txt&quot;, 
-              help=&quot;output file name [default= %default]&quot;, metavar=&quot;character&quot;)
-); 
-
-
-opt_parser &lt;-OptionParser(option_list=option_list)
-arguments &lt;- parse_args (opt_parser, positional_arguments=TRUE)
-opt &lt;- arguments$options
-args &lt;- arguments$args
-
-bimf &lt;- opt$bfile
-phenof &lt;-opt$pfile
-
-phenoNames &lt;- opt$pheno
-covarNames &lt;- strsplit(opt$covar, &quot;,&quot;)[[1]]
-chunk_size &lt;- opt$write
-cat(paste(&quot;Writing in chunk size of&quot;, chunk_size, &quot;\n&quot;))
-
-## additional options:
-
-centre &lt;- opt$center; 
-cat(paste(&quot;Using center option&quot;, centre, &quot;\n&quot;))
-genotypic &lt;- opt$genotypic
-cat(paste(&quot;Using genotypic option&quot;, genotypic, &quot;\n&quot;))
-transform &lt;- opt$transform
-cat(paste(&quot;Using transform option&quot;, transform, &quot;\n&quot;))
-xchr &lt;- opt$Xchr
-cat(paste(&quot;Using Xchr option&quot;, xchr, &quot;\n&quot;))
-out &lt;- opt$out
-
-
-if(&quot;gJLS2&quot; %in% rownames(installed.packages()) == FALSE) {
-cat(&quot;gJLS2 not installed, trying to intall now ...&quot;)
-install.packages(&quot;gJLS2&quot;, repos=&#39;http://cran.us.r-project.org&#39;)
-}
-
-require(&quot;gJLS2&quot;)
-
-
-## checking pheno file
-
-
-if(&quot;BEDMatrix&quot; %in% rownames(installed.packages()) == FALSE) {
-print(&quot;BEDMatrix not installed, trying to intall now ...&quot;)
-install.packages(&quot;BEDMatrix&quot;, repos=&#39;http://cran.us.r-project.org&#39;)
-}
-
-if(&quot;BGData&quot; %in% rownames(installed.packages()) == FALSE) {
-print(&quot;BGData not installed, trying to intall now ...&quot;)
-install.packages(&quot;BGData&quot;, repos=&#39;http://cran.us.r-project.org&#39;, dependencies=T)
-}
-
-## checking inputs to be bed, fam, bim files
-
-require(&quot;BGData&quot;)
-require(&quot;BEDMatrix&quot;)
-bedFiles &lt;- BEDMatrix(bimf)
-
-
-cat(paste(&quot;linking phenotype file&quot;, phenof, &quot;\n&quot;))
-
-bg &lt;- as.BGData(bedFiles, alternatePhenotypeFile = paste0(phenof))
-
-## CHECKING ALL INPUT FILES AGAIN:
-
-pheno_dat &lt;- pheno(bg)
-geno_dat &lt;- geno(bg)
-
-
-if (!is.null(covarNames)){
-
-if (sum(grepl(&quot;sex|SEX|Sex&quot;, covarNames)) &gt; 0){
-
-    SEX_cov &lt;- pheno_dat[,names(pheno_dat) %in% covarNames][grepl(&quot;sex|SEX|Sex&quot;, covarNames)][,1]
-    covarNames_use &lt;- covarNames[!grepl(&quot;sex|SEX|Sex&quot;, covarNames)]
-    SEX_cov_PLINK &lt;- ifelse(SEX_cov==0, 2, SEX_cov)
-
-cat(paste(&quot;Covariates include&quot;, covarNames, &quot; from covariate/pheno file \n&quot;))
-
-} else {
-
-    SEX_cov &lt;- pheno_dat$SEX
-    SEX_cov_PLINK &lt;- ifelse(SEX_cov==0, 2, SEX_cov)
-    covarNames_use &lt;- covarNames
-
-cat(paste(&quot;Covariates did not include SEX, taking SEX from .fam file\n&quot;))
-
-}
-
-cat(paste(&quot;Writing results to output&quot;, out, &quot;\n&quot;))
-
-## writing results by chunks of 50 SNPs to avoid loss in interruption
-
-iter &lt;- round(dim(geno_dat)[2]/chunk_size)
-
-if (xchr) {
-write.table(gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr), file = out, col.names=T, row.names=F, quote=F, sep=&quot;\t&quot;)  
-} else {
-write.table(gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], COVAR = pheno_dat[,names(pheno_dat) %in% covarNames], Xchr=xchr), file = out, col.names=T, row.names=F, quote=F, sep=&quot;\t&quot;)       
-}
-
-
-for (j in 2:iter){
-
-    cat(paste(&quot;Running the&quot;, j, &quot;th chunk&quot;, &quot;\n&quot;))
-
-if (j == iter){
-
-if (xchr) {
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep=&quot;\t&quot;)
-} else {
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], COVAR = pheno_dat[,names(pheno_dat) %in% covarNames], Xchr=xchr), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep=&quot;\t&quot;)    
-}
-
-} else {    
-if (xchr){
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep=&quot;\t&quot;)
-} else {
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], COVAR = pheno_dat[,names(pheno_dat) %in% covarNames], Xchr=xchr), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep=&quot;\t&quot;) 
-}
-}
-}
-
-# locReg(GENO = geno_dat[,1:3], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr)
-# scaleReg(GENO = geno_dat[,1:3], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr)
-#gJLS2(GENO = geno_dat[,1:dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,#COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr)
-
-} else {
-
-cat(paste(&quot;Writing results to output&quot;, out, &quot;\n&quot;))
-
-
-iter &lt;- round(dim(geno_dat)[2]/chunk_size)
-
-if (xchr){
-write.table(gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr), file = out, col.names=T, row.names=F, quote=F, sep=&quot;\t&quot;)
-} else {
-write.table(gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]],  Xchr=xchr), file = out, col.names=T, row.names=F, quote=F, sep=&quot;\t&quot;)    
-}
-
-for (j in 2:iter){
-
-    cat(paste(&quot;Running the&quot;, j, &quot;th chunk&quot;, &quot;\n&quot;))
-
-if (j == iter){
-
-if (xchr){  
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, head=FALSE), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep=&quot;\t&quot;)
-} else {
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], Xchr=xchr, head=FALSE), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep=&quot;\t&quot;)  
-}
-
-
-} else {    
-
-if (xchr){
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, head= FALSE), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep=&quot;\t&quot;)
-} else {
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], Xchr=xchr, head= FALSE), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep=&quot;\t&quot;)
-}
-}
-}
-}
-</code></pre>
-
-<p>You can then run this Rscript on the command line:</p>
-
-<pre><code class="bash">Rscript gJLS2Script.R --bfile chrX_473_sample \
---pfile pheno.txt \
+<pre><code class="bash">Rscript run_gJLS2.R --bfile ./input/chrX_5_snp \
+--pfile ./input/Pheno.txt \
 --pheno pheno1 \
 --Xchr TRUE \
---write 10 \
+--nThreads 2 \
 --covar SEX,covar1,covar2,covar3 \
---out testRun.results.txt 
+--out ./output/testRun.results.txt
+</code></pre>
+
+<p>Alternatively, summary statistics can also be analyzed using the command-line option:</p>
+
+<pre><code class="bash">Rscript run_gJLS2.R --sumfile ./input/GIANT_BMI_chr16_gJLS_summary.txt \
+--out ./output/GIANT_BMI_Sum.chr16_results.txt &amp;
 </code></pre>
 
 <h2>PLINK and an R plugin function</h2>
@@ -691,14 +504,44 @@ write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = p
 
 <pre><code class="bash">R CMD Rserve --RS-port 8221 --no-save
 
-plink --bfile chrX_473_sample \
---R gJLS2PLINK.R \
---pheno Pheno.txt \
---pheno-number 2 \
+plink --bfile ./input/chrX_5_snp \
+--R run_gJLS2PLINK_Xchr.R \
+--pheno ./input/Pheno.txt \
+--pheno-name pheno1 \
 --R-port 8221 \
---covar Covar.txt \
---covar-name SEX covar1 covar2 \
---out test_1kg
+--covar ./input/Pheno.txt \
+--covar-name SEX,covar1,covar2,covar3 \
+--out ./output/testRun
+</code></pre>
+
+<p>The PLINK only has an option to debug the script when necessary, it can be done on a subset of the data using the following:</p>
+
+<pre><code class="bash">plink --bfile ./input/chrX_5_snp \
+--R run_gJLS2PLINK_Xchr.R \
+--R-debug \
+--pheno ./input/Pheno.txt \
+--pheno-name pheno1 \
+--R-port 8221 \
+--covar ./input/Pheno.txt \
+--covar-name SEX,covar1,covar2,covar3 \
+--out ./output/testRun
+</code></pre>
+
+<p>This generates a &ldquo;testRun.debug.R&rdquo; file in which the data needed for the analysis are stored, and the user can proceed to debug in R:</p>
+
+<pre><code class="r">source(&quot;testRun.debug.R&quot;)
+
+ require(gJLS2)
+
+  f1 &lt;- function(s) 
+       {    
+      r &lt;-  gJLS2(GENO=s, SEX=ifelse(COVAR[,1]==0, 2, COVAR[,1]), Y=PHENO, COVAR=COVAR[,-1], Xchr=TRUE)
+      rr &lt;- as.numeric(r[3:5])
+
+      c( length(rr) , rr )
+       }
+
+apply(GENO , 2 , f1)
 </code></pre>
 
 <h2>User (input data) scenarios</h2>
@@ -709,9 +552,9 @@ plink --bfile chrX_473_sample \
 <li><p><em>I have genotype and phenotype data and am interested in running the gJLS analyses from scratch using the R package.</em> </p>
 
 <ul>
-<li><em>I have a relatively small dataset with &lt; 5,000 samples and want to investigate particular markers or gene-set analysis.</em> <span style="color:green">The R GUI should be sufficient for this purpose. PLINK format data can be read with snpStats.</span></li>
-<li><em>I have a relatively small dataset with &lt; 5,000 samples and want to perform a genome-wide analysis.</em> <span style="color:green">The Rscript option will work nicely in background provided the memory available to R can handle the data size. Another nice option to run using PLINK binary data directly is through BEDMatrix.</span></li>
-<li><em>I have datasets with &gt; 5,000 samples.</em> <span style="color:green">We strongly recommend the PLINK R plugin as the analysis will likely take quite long and it is simple to break the job by chromosome or smaller chunks via PLINK.</span></li>
+<li><em>I have a relatively small dataset with &lt; 5,000 samples and want to investigate particular markers or gene-set analysis.</em> <span style="color:green">The R GUI should be sufficient for this purpose. PLINK binary data can be read with &ldquo;BEDMatrix&rdquo; and the .raw genotypes can be read in directly as a data.frame.</span></li>
+<li><em>I have a relatively small dataset with &lt; 5,000 samples and want to perform a genome-wide analysis.</em> <span style="color:green">We recommend either the Rscript or PLINK R plugin as the analysis is straighforward and simple to break the job by chromosome or apply other filters within PLINK.</span></li>
+<li><em>I have datasets with &gt; 5,000 samples.</em> <span style="color:green">The Rscript option will work nicely on binary files using &ldquo;BEDMatrix&rdquo;, the multiple cores option can speed up the computational time, and the user specified write size makes sure that no results are lost in the process.</span></li>
 </ul></li>
 <li><p><em>I have genotype and phenotype data, but already ran the location analysis (GWAS) using other methods (e.g. PLINK or BOLT-LMM) or plan to use published GWAS p-values. I am interested in the gS analysis and the combined gJLS analyses using existing location p-values in place of the gL.</em></p>
 
