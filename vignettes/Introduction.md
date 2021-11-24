@@ -26,6 +26,19 @@ The package can also be conveniently used in 1) a bash script as an R plugin fun
 # Quick start
 
 
+To install either
+
+```r
+install.packages("gJLS2")
+```
+or
+
+```r
+#install.packages("devtools")
+devtools::install_github("WeiAkaneDeng/gJLS2")
+```
+
+
 To load the library in R, simply run:
 
 ```r
@@ -119,20 +132,16 @@ The scale analysis automatically returns *p*-values from the recommended associa
 
 
 ```r
-scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
+scaleReg(GENO=chrXdat[,7:10], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
 #>   CHR         SNP        gS
 #> 1   X rs5983012_A 0.1391909
 #> 2   X rs4119090_G 0.9828430
 #> 3   X rs5911042_T 0.1487017
 #> 4   X  rs986810_C 0.9563390
-#> 5   X  rs180495_G 0.3476929
-scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg="OLS")
+scaleReg(GENO=chrXdat[,7:8], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg="OLS")
 #>   CHR         SNP        gS
 #> 1   X rs5983012_A 0.1739062
 #> 2   X rs4119090_G 0.9999999
-#> 3   X rs5911042_T 0.1163023
-#> 4   X  rs986810_C 0.9581589
-#> 5   X  rs180495_G 0.3619056
 ```
 
 The joint-location-scale analysis is then straightforward by combining the sets of **gL** and **gS** *p*-values.
@@ -198,13 +207,13 @@ genPP <- rbind(rdirichlet(sum(geno==0),c(a,(1-a)/2,(1-a)/2)),
         rdirichlet(sum(geno==1),c((1-a)/2,a,(1-a)/2)),
         rdirichlet(sum(geno==2),c((1-a)/2,(1-a)/2,a)))
 head(genPP);
-#>             [,1]       [,2]        [,3]
-#> [1,] 0.596285091 0.30324341 0.100471500
-#> [2,] 0.052938129 0.03129815 0.915763721
-#> [3,] 0.965310604 0.03335416 0.001335238
-#> [4,] 0.394168808 0.60109443 0.004736758
-#> [5,] 0.027541136 0.88769211 0.084766750
-#> [6,] 0.003241885 0.39991778 0.596840334
+#>            [,1]        [,2]         [,3]
+#> [1,] 0.55283840 0.286662715 0.1604988856
+#> [2,] 0.95855431 0.040981510 0.0004641806
+#> [3,] 0.31058243 0.002391297 0.6870262772
+#> [4,] 0.85809211 0.141732433 0.0001754581
+#> [5,] 0.04559876 0.033373396 0.9210278430
+#> [6,] 0.11477787 0.007539969 0.8776821607
 summary(rowSums(genPP))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #>       1       1       1       1       1       1
@@ -212,7 +221,7 @@ summary(rowSums(genPP))
 
 The genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> can be analyzed directly, but needs to be an item in a list since the program cannot distinguish the supplied <tt>matrix</tt>/<tt>data.frame</tt> is for an individual imputed SNP or a matrix of SNPs in discrete/dosage genotype values. 
 
-To analyzed the genotypic probabilities using a 2 degree-of-freedom (df) test, the genotypic option needs to be set to <tt>TRUE</tt>, otherwise the function automatically converts the genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> to dosage data and then analyzes using a 1 df test. However, we cannot perform the original Levene's test on the genotypic probabilities as supposed to discrete genotype values.
+To analyzed the genotypic probabilities using a 2 degree-of-freedom (df) test, the genotypic option needs to be set to TRUE, otherwise the function automatically converts the genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> to dosage data and then analyzes using a 1 df test. However, we cannot perform the original Levene's test on the genotypic probabilities as supposed to discrete genotype values.
 
 
 ```r
@@ -221,13 +230,13 @@ y <- rnorm(N)
 covar <- matrix(rnorm(N*10), ncol=10)
 gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, genotypic = TRUE) ## geno probabilities
 #>     SNP        gL        gS      gJLS
-#> 1 SNP_1 0.4723609 0.9407325 0.8047937
+#> 1 SNP_1 0.2751495 0.7257143 0.5213722
 gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar) ## geno dosage
 #>     SNP        gL        gS      gJLS
-#> 1 SNP_1 0.4723609 0.7621346 0.7277971
+#> 1 SNP_1 0.2751495 0.4259851 0.3684825
 try(gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, origLev = TRUE)) ## cannot perform Levene's test
 #>     SNP        gL        gS      gJLS
-#> 1 SNP_1 0.4723609 0.7621346 0.7277971
+#> 1 SNP_1 0.2751495 0.4259851 0.3684825
 ```
 
 ## Related samples
@@ -237,8 +246,8 @@ The <tt>related=TRUE</tt> option can be used to deal with related samples, usual
 
 ```r
 gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, related=TRUE, clust = rep(1:3, c(N/2, N/4, N/4)))
-#>   SNP        gL       gS      gJLS
-#> 1 SNP 0.8382131 0.992551 0.9850181
+#>   SNP         gL         gS       gJLS
+#> 1 SNP 0.03389322 0.03117351 0.00829696
 ```
 
 
@@ -253,10 +262,10 @@ genoX[sex==2] <- rbinom(sum(sex==2), 2, 0.3)
 genoX[sex==1] <- rbinom(sum(sex==1), 1, 0.3)
 table(genoX, sex)
 #>      sex
-#> genoX  1  2
-#>     0 96 72
-#>     1 47 70
-#>     2  0 15
+#> genoX   1   2
+#>     0 109  78
+#>     1  50  51
+#>     2   0  12
 ```
 
 For X-chromosome analyses, the option <tt>Xchr</tt> must be set to <tt>TRUE</tt> as the function cannot distinguish autosomal genotype ro X-chromosome genotype data. For the pseudo-autosomal regions of X-chromosome, this option can be set to <tt>FALSE</tt>.
@@ -265,7 +274,7 @@ For X-chromosome analyses, the option <tt>Xchr</tt> must be set to <tt>TRUE</tt>
 ```r
 locReg(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #>   CHR SNP        gL
-#> 1   X SNP 0.9007335
+#> 1   X SNP 0.4117172
 ```
 
 The scale and joint analysis can be performed similarly following the default options of inverse-normal transformation (<tt>transformed=TRUE</tt>), using least absolute devation (LAD) to estimate residuals in the first stage (<tt>loc_alg="LAD"</tt>), and assuming an additive model (<tt>genotypic=FALSE</tt>):
@@ -274,7 +283,7 @@ The scale and joint analysis can be performed similarly following the default op
 ```r
 gJLS2(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #>   CHR SNP        gL        gS      gJLS
-#> 1   X SNP 0.8776712 0.4927627 0.7949961
+#> 1   X SNP 0.4351126 0.2307068 0.3311406
 ```
 
 
@@ -288,7 +297,7 @@ As an additional option, the sex-stratified scale association *p*-values may als
 ```r
 gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, origLev=TRUE)
 #>   SNP        gL        gS       Lev Flagged      gJLS
-#> 1 SNP 0.8853727 0.5543348 0.9888627       1 0.8401064
+#> 1 SNP 0.0434283 0.9603214 0.8667675       0 0.1742078
 ```
 
 

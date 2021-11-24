@@ -36,5 +36,5 @@ gJLS2s(gL = gL, gS=gS)
 Soave D, Corvol H, Panjwani N, Gong J, Li W, Boëlle PY, Durie PR, Paterson AD, Rommens JM, Strug LJ, Sun L. (2015). A Joint Location-Scale Test Improves Power to Detect Associated SNPs, Gene Sets, and Pathways. \emph{American Journal of Human Genetics}. 2015 Jul 2;\strong{97}(1):125-38. \doi{10.1016/j.ajhg.2015.05.015}. PMID: 26140448; PMCID: PMC4572492.
 }
 \author{
-Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 }

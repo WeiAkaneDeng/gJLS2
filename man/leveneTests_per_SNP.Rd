@@ -56,5 +56,5 @@ leveneTests_per_SNP(geno_one=rep(0, N), Y=y^2, transform=TRUE)
 Levene H. (1960) Robust tests for equality of variances. In \emph{Contributions to Probability and Statistics: Essays in Honor of Harold Hotelling} eds:I. Olkin, S.G. Ghurye, W. Hoeffding, W.G. Madow & H.B.Mann, pp.278-292. Stanford: Stanford University Press.
 }
 \author{
-Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 }

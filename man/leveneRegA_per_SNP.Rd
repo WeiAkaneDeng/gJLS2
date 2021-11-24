@@ -93,5 +93,5 @@ Soave D, Sun L. (2017). A generalized Levene's scale test for variance heterogen
 Gastwirth JL, Gel YR, Miao W. (2009). The Impact of Levene's Test of Equality of Variances on Statistical Theory and Practice." \emph{Statistical Science}. \strong{24}(3) 343 - 360, \doi{10.1214/09-STS301}
 }
 \author{
-Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 }

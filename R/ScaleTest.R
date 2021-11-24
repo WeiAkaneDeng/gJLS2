@@ -58,8 +58,7 @@
 
 
 
-
-scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=FALSE, loc_alg = "LAD", related = FALSE, cov.structure = "corCompSymm", clust = NULL, genotypic = FALSE,  origLev = FALSE, centre = "median", nCores=1){
+scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=FALSE, loc_alg = "LAD", related = FALSE, cov.structure = "corCompSymm", clust = NULL, genotypic = FALSE, origLev = FALSE, centre = "median", nCores=1){
 
   if (missing(Y))
       stop("The quantitative trait input is missing.")
@@ -155,11 +154,18 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
       if (nCores > 1) {
       output_test <- do.call(rbind, mclapply(1:dim(GENO)[2], function(ee) tryCatch(leveneRegX_per_SNP(geno_one=GENO[,ee], SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) NULL), mc.cores=nCores))
       } else {
-      output_test <- apply(GENO, 2, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic, nCores = nCores), error=function(e) NULL))
+      output_test <- apply(GENO, 2, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) NULL))
       }
 
       p_out <- output_test
       change_to_NA <- sapply(output_test, is.null)
+
+      if (length(change_to_NA)==0){
+        error_msg <- tryCatch(leveneRegX_per_SNP(geno_one=GENO[,1], SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) e)
+        print(error_msg)
+        if(length(change_to_NA)==0) stop("Analysis terminated (Levene's XReg on a matrix of GENO). Please debug the error message.")
+
+      } else {
 
       if (sum(change_to_NA) == length(output_test)){
         p_out <- rep(NA, length(output_test))
@@ -172,6 +178,10 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
       if (is.null(dim(p_out))){
         p_out <- do.call(rbind, p_out)
       }
+        output_test2 <- NULL
+
+      }
+
 
       if (origLev) {
 
@@ -184,6 +194,13 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
         p_out2 <- output_test2
         change_to_NA <- sapply(output_test2, is.null)
 
+        if (length(change_to_NA)==0){
+          error_msg <- tryCatch(leveneRegX_per_SNP(geno_one=GENO[,1], SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) e)
+          print(error_msg)
+          try(if(length(change_to_NA)==0) stop("Analysis terminated (Levene's Test for Xchr on a matrix of GENO). Please debug the error message."))
+
+        } else {
+
         if (sum(change_to_NA) == length(output_test2)){
           p_out2 <- NA
         } else {
@@ -195,6 +212,8 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
         if (is.null(dim(p_out2)) & !is.na(p_out2)){
           p_out2 <- do.call(rbind, p_out2)
         }
+        }
+
 
         if (is.null(colnames(GENO))){
 
@@ -203,22 +222,21 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
           } else {
           outputRes <- cbind(data.frame("CHR" = "X", "SNP" = paste("SNP_",1:dim(GENO)[2],sep=""), "gS" = p_out), p_out2)
           }
-        } else {
-          if (sum(change_to_NA) == length(output_test2)) {
-            outputRes <- cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out))
+
           } else {
-          outputRes <- cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out), p_out2)
+
+       if (sum(change_to_NA) == length(output_test2)) {
+         outputRes <- cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out))
+        } else {
+        outputRes <- cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out), p_out2)
           }
         }
 
       } else {
 
         if (is.null(colnames(GENO))){
-
           outputRes <- data.frame("CHR" = "X", "SNP" = paste("SNP_",1:dim(GENO)[2],sep=""), "gS" = p_out)
-
         } else {
-
           outputRes <- data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out)
         }
       }
@@ -230,9 +248,15 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
       } else {
       output_test <- apply(GENO, 2, function(ee) tryCatch(leveneRegA_per_SNP(geno_one = ee, Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic), error=function(e) NULL))
       }
-      p_out <- output_test
+      p_out <- as.numeric(output_test)
       change_to_NA <- sapply(output_test, is.null)
 
+      if (length(change_to_NA)==0){
+        error_msg <- tryCatch(leveneRegA_per_SNP(geno_one=GENO[,1], Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic), error=function(e) e)
+        print(error_msg)
+        try(if(length(change_to_NA)==0) stop("Analysis terminated (Levene's AReg on a matrix of GENO). Please debug the error message."))
+
+      } else {
       if (sum(change_to_NA) == length(output_test)){
         p_out <- rep(NA, length(output_test))
       } else {
@@ -243,6 +267,7 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
       if (is.null(dim(p_out))){
         p_out <- do.call(rbind, p_out)
+      }
       }
 
       if (origLev) {
@@ -255,6 +280,13 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
         p_out2 <- output_test2
         change_to_NA <- sapply(output_test2, is.null)
 
+        if (length(change_to_NA)==0){
+          error_msg <- tryCatch(leveneTests_per_SNP(geno_one=GENO[,1],geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) e)
+          print(error_msg)
+          try(if(length(change_to_NA)==0) stop("Analysis terminated (Levene's Test for Autosome on a matrix of GENO). Please debug the error message."))
+
+        } else {
+
         if (sum(change_to_NA) == length(output_test2)){
           p_out2 <- NA
         } else {
@@ -265,6 +297,7 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
         if (is.null(dim(p_out2)) & !is.na(p_out2)){
           p_out2 <- do.call(rbind, p_out2)
+        }
         }
 
         if (is.null(colnames(GENO))){
@@ -281,7 +314,6 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
           } else {
           outputRes <- cbind(data.frame("SNP" = colnames(GENO), "gS" = p_out), p_out2)
           }
-
         }
 
       } else {
@@ -303,13 +335,20 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
       if (Xchr) {
 
         if (nCores > 1) {
-        output_test <- mclapply(GENO, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic, mc.cores=nCores), error=function(e) NULL))
+        output_test <- mclapply(GENO, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) NULL), mc.cores=nCores)
            } else {
         output_test <- lapply(GENO, function(ee) tryCatch(leveneRegX_per_SNP(geno_one=ee, SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) NULL))
         }
 
         p_out <- output_test
         change_to_NA <- unlist(lapply(output_test, is.null))
+
+        if (length(change_to_NA)==0){
+          error_msg <- tryCatch(leveneRegX_per_SNP(geno_one=GENO[[1]], SEX = SEX, Y=Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, genotypic=genotypic), error=function(e) e)
+          print(error_msg)
+          try(if(length(change_to_NA)==0) stop("Analysis terminated (Levene's XReg on a list of GENO). Please debug the error message."))
+
+        } else {
 
         if (sum(change_to_NA) == length(output_test)){
           p_out <- list(NA)[rep(1, length(output_test))]
@@ -318,11 +357,12 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
           names(NA_out) <- names(p_out[[which(!change_to_NA)[1]]])
           p_out[which(change_to_NA)] <- list(NA_out)[rep(1, sum(change_to_NA))]
         }
+        }
 
       if (origLev) {
 
       if (nCores > 1) {
-      output_test2 <- mclapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed, mc.cores=nCores), error=function(e) NULL))
+      output_test2 <- mclapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL), mc.cores=nCores)
         } else {
       output_test2 <- lapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL))
          }
@@ -330,12 +370,20 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
       p_out2 <- output_test2
       change_to_NA <- unlist(lapply(output_test2, is.null))
 
+      if (length(change_to_NA)==0){
+        error_msg <- tryCatch(leveneTests_per_SNP(geno_one=GENO[[1]],SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) e)
+        print(error_msg)
+        try(if(length(change_to_NA)==0) stop("Analysis terminated (Levene's Test for Xchr on a list of GENO). Please debug the error message."))
+
+      } else {
+
       if (sum(change_to_NA) == length(output_test2)){
         p_out2 <- NA
       } else {
         NA_out <- rep(NA, length(p_out2[[which(!change_to_NA)[1]]]))
         names(NA_out) <- names(p_out2[[which(!change_to_NA)[1]]])
         p_out2[which(change_to_NA)] <- list(NA_out)[rep(1, sum(change_to_NA))]
+      }
       }
 
         if (is.null(names(GENO))){
@@ -368,13 +416,20 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
     } else {
 
       if (nCores > 1) {
-       output_test <- mclapply(GENO, function(ee) tryCatch(leveneRegA_per_SNP(geno_one = ee, Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic, mc.cores=nCores), error=function(e) NULL))
+       output_test <- mclapply(GENO, function(ee) tryCatch(leveneRegA_per_SNP(geno_one = ee, Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic), error=function(e) NULL), mc.cores=nCores)
       } else {
       output_test <- lapply(GENO, function(ee) tryCatch(leveneRegA_per_SNP(geno_one = ee, Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic), error=function(e) NULL))
       }
 
       p_out <- output_test
       change_to_NA <- unlist(lapply(output_test, is.null))
+
+      if (length(change_to_NA)==0){
+        error_msg <- tryCatch(leveneRegA_per_SNP(geno_one=GENO[[1]],  Y = Y, COVAR = COVAR, transformed=transformed, loc_alg = loc_alg, related = related, cov.structure = cov.structure, clust = clust, genotypic = genotypic), error=function(e) e)
+        print(error_msg)
+        try(if(length(change_to_NA)==0) stop("Analysis terminated (Levene's AReg on a list of GENO). Please debug the error message."))
+
+      } else {
 
       if (sum(change_to_NA) == length(output_test)){
         p_out <- list(NA)[rep(1, length(output_test))]
@@ -383,11 +438,13 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
         names(NA_out) <- names(p_out[[which(!change_to_NA)[1]]])
         p_out[which(change_to_NA)] <- list(NA_out)[rep(1, sum(change_to_NA))]
       }
+      }
+
 
       if (origLev) {
 
         if (nCores > 1) {
-        output_test2 <- mclapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed, mc.cores=nCores), error=function(e) NULL))
+        output_test2 <- mclapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL), mc.cores=nCores)
         } else {
         output_test2 <- lapply(GENO, function(ee) tryCatch(leveneTests_per_SNP(geno_one = ee, SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) NULL))
         }
@@ -395,12 +452,20 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
         p_out2 <- output_test2
         change_to_NA <- unlist(lapply(output_test2, is.null))
 
+        if (length(change_to_NA)==0){
+          error_msg <- tryCatch(leveneTests_per_SNP(geno_one=GENO[[1]], SEX = SEX, Y=Y, centre = centre, transformed=transformed), error=function(e) e)
+          print(error_msg)
+          try(if(length(change_to_NA)==0) stop("Analysis terminated (Levene's Tests for Autosomes on a list of GENO). Please debug the error message."))
+
+        } else {
+
         if (sum(change_to_NA) == length(output_test2)){
           p_out2 <- NA
         } else {
           NA_out <- rep(NA, length(p_out2[[which(!change_to_NA)[1]]]))
           names(NA_out) <- names(p_out2[[which(!change_to_NA)[1]]])
           p_out2[which(change_to_NA)] <- list(NA_out)[rep(1, sum(change_to_NA))]
+        }
         }
 
         if (is.null(names(GENO))){
@@ -423,7 +488,6 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
         if (is.null(names(GENO))){
           outputRes <- data.frame("SNP" = paste("SNP_",1:length(GENO), sep=""), "gS" = unlist(p_out))
-
         } else {
           outputRes <- data.frame("SNP" = names(GENO), "gS" = unlist(p_out))
         }
@@ -433,8 +497,8 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
 }
 
-  rownames(outputRes) <- NULL
 
+  rownames(outputRes) <- NULL
   return(outputRes)
  }
 

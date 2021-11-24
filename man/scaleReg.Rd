@@ -17,7 +17,8 @@ scaleReg(
   clust = NULL,
   genotypic = FALSE,
   origLev = FALSE,
-  centre = "median"
+  centre = "median",
+  nCores = 1
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ scaleReg(
 \item{origLev}{a logical indicator for whether the reported p-values should also include original Levene's test.}
 
 \item{centre}{a character indicating whether the absolute deviation should be calculated with respect to "median" or "mean" in the traditional sex-specific and Fisher combined Levene's test p-values (three tests) for X-chromosome. The default value is "median". This option applies to sex-specific analysis using original Levene's test (i.e. when \code{regression}$$=$$\code{TRUE}).}
+
+\item{nCores}{optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}.}
 }
 \value{
 a vector of Levene's test regression p-values according to the models
@@ -66,10 +69,16 @@ Y <- rnorm(N)
 covar <- matrix(rnorm(N*10), ncol=10)
 
 # vanilla example:
+
 scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar)
 scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, genotypic=TRUE)
 scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, origLev = TRUE)
 scaleReg(GENO=list(genoDAT, genoDAT), Y=Y, COVAR=covar, origLev = TRUE, SEX=sex)
+
+largerG <- matrix(rep(genoDAT,each=100), ncol=100, byrow=TRUE)
+system.time(scaleReg(GENO=largerG, nCores=1, Y=Y, COVAR=covar))
+system.time(scaleReg(GENO=largerG, nCores=2, Y=Y, COVAR=covar))
+system.time(scaleReg(GENO=replicate(100, genoDAT, simplify=FALSE), Y=Y, COVAR=covar, origLev = TRUE, SEX=sex, nCores=2))
 
 }
 \references{
@@ -80,5 +89,5 @@ Gastwirth JL, Gel YR, Miao W. (2009). The Impact of Levene's Test of Equality of
 Soave D, Sun L. (2017). A generalized Levene's scale test for variance heterogeneity in the presence of sample correlation and group uncertainty. \emph{Biometrics}. \strong{73}(3):960-971. \doi{10.1111/biom.12651}. PMID:28099998.
 }
 \author{
-Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 }

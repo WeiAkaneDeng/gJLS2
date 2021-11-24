@@ -85,9 +85,7 @@ devtools::install_github("WeiAkaneDeng/gJLS2")
 
 require("gJLS2")
 
-
 ## checking pheno file
-
 
 if("BEDMatrix" %in% rownames(installed.packages()) == FALSE) {
 print("BEDMatrix not installed, trying to intall now ...")
@@ -105,7 +103,6 @@ require("BGData")
 require("BEDMatrix")
 bedFiles <- BEDMatrix(bimf)
 
-
 cat(paste("linking phenotype file", phenof, "\n"))
 
 bg <- as.BGData(bedFiles, alternatePhenotypeFile = paste0(phenof))
@@ -120,7 +117,6 @@ if (sum(grepl("SEX", names(pheno_dat)))>1){
 }
 
 if (!is.null(covarNames)){
-
 
 if (sum(grepl("sex|SEX|Sex", covarNames)) > 0){
 
@@ -140,15 +136,13 @@ cat(paste("Covariates did not include SEX, taking SEX from .fam file\n"))
 
 }
 
-
 cat(paste("Writing results to output", out, "\n"))
-
 
 ## writing results by chunks of 50 SNPs to avoid loss in interruption
 
 iter <- round(dim(geno_dat)[2]/chunk_size)
 
-final_output <- gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr)
+final_output <- gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread)
 
 write.table(final_output, file = out, col.names=T, row.names=F, quote=F, sep="\t")
 
@@ -160,19 +154,18 @@ for (j in 2:iter){
 
 if (j == iter){
 	
-final_output <- gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr)
+final_output <- gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread)
 
 write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 
 } else {	
 
-final_output <- gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr)
+final_output <- gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores= nThread)
 
 write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 }
 }
 }
-
 
 } else {
 
@@ -180,7 +173,7 @@ cat(paste("Writing results to output", out, "\n"))
 	
 iter <- round(dim(geno_dat)[2]/chunk_size)
 
-write.table(gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr), file = out, col.names=T, row.names=F, quote=F, sep="\t")
+write.table(gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread), file = out, col.names=T, row.names=F, quote=F, sep="\t")
 
 if (iter > 1) {
 
@@ -190,18 +183,21 @@ for (j in 2:iter){
 
 if (j == iter){
 	
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, head=FALSE), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
+write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 
 	} else {	
 
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, head= FALSE), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
+write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 		}	
 	}
 }
-}
-	
-}else{
 
+
+}
+
+
+
+} else {
 	out <- opt$out
 	sum_file <- read.table(opt$sumfile, head=T)	
 	final_output <- gJLS2::gJLS2s(gL = sum_file$gL, gS = sum_file$gS)
@@ -209,6 +205,7 @@ write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = p
 	sum_file_out$gJLS <- formatC(final_output$gJLS, digits=3, format="e")
 	write.table(sum_file_out, file = out, col.names=T, row.names=F, quote=F, sep="\t")	
 }
+
 
 
 

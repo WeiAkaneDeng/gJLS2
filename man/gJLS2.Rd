@@ -18,7 +18,8 @@ gJLS2(
   genotypic = FALSE,
   origLev = FALSE,
   centre = "median",
-  XchrMethod = 3
+  XchrMethod = 3,
+  nCores = 1
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ gJLS2(
 \item{centre}{a character indicating whether the absolute deviation should be calculated with respect to "median" or "mean" in the traditional sex-specific and Fisher combined Levene's test p-values (three tests) for X-chromosome. The default value is "median". This option applies to sex-specific analysis using original Levene's test (i.e. when \code{regression}$$=$$\code{TRUE}).}
 
 \item{XchrMethod}{an integer taking values 0 (reports all models), 1.1, 1.2, 2, 3, for the choice of X-chromosome location association testing models; for more details, see \code{\link{locReg}}.}
+
+\item{nCores}{optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}.}
 }
 \value{
 a vector of location, scale and combined gJLS p-values for each SNP.
@@ -80,5 +83,5 @@ gJLS2(GENO=genDAT, SEX=sex, Y=y, COVAR=covar , Xchr=TRUE)
 Soave D, Corvol H, Panjwani N, Gong J, Li W, Boëlle PY, Durie PR, Paterson AD, Rommens JM, Strug LJ, Sun L. (2015). A Joint Location-Scale Test Improves Power to Detect Associated SNPs, Gene Sets, and Pathways. \emph{American Journal of Human Genetics}. 2015 Jul 2;\strong{97}(1):125-38. \doi{10.1016/j.ajhg.2015.05.015}. PMID: 26140448; PMCID: PMC4572492.
 }
 \author{
-Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 }

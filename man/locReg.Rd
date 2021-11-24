@@ -14,7 +14,8 @@ locReg(
   transformed = FALSE,
   related = FALSE,
   cov.structure = "corCompSymm",
-  clust = NULL
+  clust = NULL,
+  nCores = 1
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ model 3 (recommended): Y~G+G_D+S+GxSex; with p-value given by comparing Y ~ G+G_
 \item{cov.structure}{optional: should be one of standard classes of correlation structures listed in \code{corClasses} from \pkg{R} package \pkg{nlme}. See \code{?corClasses}. The most commonly used option is \code{corCompSymm} for a compound symmetric correlation structure. This option currently only applies to autosomal SNPs.}
 
 \item{clust}{optional: a factor indicating the grouping of samples; it should have at least two distinct values. It could be the family ID (FID) for family studies. This option currently only applies to autosomal SNPs.}
+
+\item{nCores}{optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}.}
 }
 \value{
 a vector of location association \emph{p}-values for each SNP.
@@ -76,6 +79,12 @@ locReg(GENO=list("SNP1"= genDAT, "SNP2" = genDAT[sample(1:100)]),
 SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,
 clust = rep(c(1:50), 2))
 
+
+largerG <- matrix(rep(genDAT,each=100), ncol=100, byrow=TRUE)
+system.time(locReg(GENO=largerG, SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,clust = rep(c(1:50), 2), nCores=3))
+system.time(locReg(GENO=largerG, SEX=sex, Y=as.numeric(yy), COVAR=COVAR, related = TRUE,clust = rep(c(1:50), 2), nCores=1))
+
+
 # Xchr data example:
 genDAT1 <- rep(NA, N)
 genDAT1[sex==1] <- rbinom(sum(sex==1), 1, 0.5)
@@ -90,5 +99,5 @@ Chen B, Craiu RV, Sun L. (2020) Bayesian model averaging for the X-chromosome in
 Chen B, Craiu RV, Strug LJ, Sun L. (2021) The X factor: A robust and powerful approach to X-chromosome-inclusive whole-genome association studies. \emph{Genetic Epidemiology}. \doi{10.1002/gepi.22422}. PMID: 34224641.
 }
 \author{
-Wei Q. Deng \email{deng@utstat.toronto.edu}, Lei Sun \email{sun@utstat.toronto.edu}
+Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
 }

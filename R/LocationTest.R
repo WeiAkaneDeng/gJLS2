@@ -113,7 +113,7 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
     if (length(change_to_NA)==0){
       error_msg <- tryCatch(locReg_per_SNP(geno_one = GENO[[1]], SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) e)
       print(error_msg)
-      print("Analysis terminated. Please debug the error message.")
+      stop("Analysis terminated. Please debug the error message.")
 
       } else {
 
@@ -156,7 +156,7 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
     if (length(change_to_NA)==0){
       error_msg <- tryCatch(locReg_per_SNP(geno_one = GENO[,1], SEX=SEX, Y=Y, COVAR = COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust), error=function(e) e)
       print(error_msg)
-      print("Analysis terminated. Please debug the error message.")
+      stop("Analysis terminated. Please debug the error message.")
     } else {
 
     if (sum(change_to_NA) == length(output_test)){

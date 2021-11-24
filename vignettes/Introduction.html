@@ -214,6 +214,17 @@ hr {
 
 <h1>Quick start</h1>
 
+<p>To install either</p>
+
+<pre><code class="r">install.packages(&quot;gJLS2&quot;)
+</code></pre>
+
+<p>or</p>
+
+<pre><code class="r">#install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;WeiAkaneDeng/gJLS2&quot;)
+</code></pre>
+
 <p>To load the library in R, simply run:</p>
 
 <pre><code class="r">library(gJLS2)
@@ -294,20 +305,16 @@ kurtosis(chrXdat$PHENOTYPE)
 
 <p>The scale analysis automatically returns <em>p</em>-values from the recommended association model and assumes the residuals at the mean-stage are calculated using Least Absolute Deviation (LAD) rather than Ordinary Least Squares (OLS):</p>
 
-<pre><code class="r">scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
+<pre><code class="r">scaleReg(GENO=chrXdat[,7:10], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
 #&gt;   CHR         SNP        gS
 #&gt; 1   X rs5983012_A 0.1391909
 #&gt; 2   X rs4119090_G 0.9828430
 #&gt; 3   X rs5911042_T 0.1487017
 #&gt; 4   X  rs986810_C 0.9563390
-#&gt; 5   X  rs180495_G 0.3476929
-scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg=&quot;OLS&quot;)
+scaleReg(GENO=chrXdat[,7:8], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg=&quot;OLS&quot;)
 #&gt;   CHR         SNP        gS
 #&gt; 1   X rs5983012_A 0.1739062
 #&gt; 2   X rs4119090_G 0.9999999
-#&gt; 3   X rs5911042_T 0.1163023
-#&gt; 4   X  rs986810_C 0.9581589
-#&gt; 5   X  rs180495_G 0.3619056
 </code></pre>
 
 <p>The joint-location-scale analysis is then straightforward by combining the sets of <strong>gL</strong> and <strong>gS</strong> <em>p</em>-values.</p>
@@ -366,13 +373,13 @@ genPP &lt;- rbind(rdirichlet(sum(geno==0),c(a,(1-a)/2,(1-a)/2)),
         rdirichlet(sum(geno==1),c((1-a)/2,a,(1-a)/2)),
         rdirichlet(sum(geno==2),c((1-a)/2,(1-a)/2,a)))
 head(genPP);
-#&gt;             [,1]       [,2]        [,3]
-#&gt; [1,] 0.596285091 0.30324341 0.100471500
-#&gt; [2,] 0.052938129 0.03129815 0.915763721
-#&gt; [3,] 0.965310604 0.03335416 0.001335238
-#&gt; [4,] 0.394168808 0.60109443 0.004736758
-#&gt; [5,] 0.027541136 0.88769211 0.084766750
-#&gt; [6,] 0.003241885 0.39991778 0.596840334
+#&gt;            [,1]        [,2]         [,3]
+#&gt; [1,] 0.55283840 0.286662715 0.1604988856
+#&gt; [2,] 0.95855431 0.040981510 0.0004641806
+#&gt; [3,] 0.31058243 0.002391297 0.6870262772
+#&gt; [4,] 0.85809211 0.141732433 0.0001754581
+#&gt; [5,] 0.04559876 0.033373396 0.9210278430
+#&gt; [6,] 0.11477787 0.007539969 0.8776821607
 summary(rowSums(genPP))
 #&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #&gt;       1       1       1       1       1       1
@@ -380,20 +387,20 @@ summary(rowSums(genPP))
 
 <p>The genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> can be analyzed directly, but needs to be an item in a list since the program cannot distinguish the supplied <tt>matrix</tt>/<tt>data.frame</tt> is for an individual imputed SNP or a matrix of SNPs in discrete/dosage genotype values. </p>
 
-<p>To analyzed the genotypic probabilities using a 2 degree-of-freedom (df) test, the genotypic option needs to be set to <tt>TRUE</tt>, otherwise the function automatically converts the genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> to dosage data and then analyzes using a 1 df test. However, we cannot perform the original Levene&#39;s test on the genotypic probabilities as supposed to discrete genotype values.</p>
+<p>To analyzed the genotypic probabilities using a 2 degree-of-freedom (df) test, the genotypic option needs to be set to TRUE, otherwise the function automatically converts the genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> to dosage data and then analyzes using a 1 df test. However, we cannot perform the original Levene&#39;s test on the genotypic probabilities as supposed to discrete genotype values.</p>
 
 <pre><code class="r">sex &lt;- rbinom(N, 1, 0.5)+1 ## using PLINK coding
 y &lt;- rnorm(N)
 covar &lt;- matrix(rnorm(N*10), ncol=10)
 gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, genotypic = TRUE) ## geno probabilities
 #&gt;     SNP        gL        gS      gJLS
-#&gt; 1 SNP_1 0.4723609 0.9407325 0.8047937
+#&gt; 1 SNP_1 0.2751495 0.7257143 0.5213722
 gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar) ## geno dosage
 #&gt;     SNP        gL        gS      gJLS
-#&gt; 1 SNP_1 0.4723609 0.7621346 0.7277971
+#&gt; 1 SNP_1 0.2751495 0.4259851 0.3684825
 try(gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, origLev = TRUE)) ## cannot perform Levene&#39;s test
 #&gt;     SNP        gL        gS      gJLS
-#&gt; 1 SNP_1 0.4723609 0.7621346 0.7277971
+#&gt; 1 SNP_1 0.2751495 0.4259851 0.3684825
 </code></pre>
 
 <h2>Related samples</h2>
@@ -401,8 +408,8 @@ try(gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, origLev = TRUE)) ## canno
 <p>The <tt>related=TRUE</tt> option can be used to deal with related samples, usually indicated by the shared family ID (FID) in the PLINK tt&gt;.fam</tt> files. A cluster assignment can be specified, for example, using the FID as a factor. If the <tt>clust</tt> argument is not specified, then the entire samples are treated as a single group constrained by a single correlation structure. The default option assumes a compound symmetric correlation structure whereby all pairwise samples within the same cluster/group have the same correlation. The argument <tt>cov.structure</tt> can also take other standard classes of correlation structures listed in <tt>corClasses</tt> from <tt>R</tt> package <tt>nlme</tt>. See <tt>?corClasses</tt>. This option currently only applies to autosomal SNPs.</p>
 
 <pre><code class="r">gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, related=TRUE, clust = rep(1:3, c(N/2, N/4, N/4)))
-#&gt;   SNP        gL       gS      gJLS
-#&gt; 1 SNP 0.8382131 0.992551 0.9850181
+#&gt;   SNP         gL         gS       gJLS
+#&gt; 1 SNP 0.03389322 0.03117351 0.00829696
 </code></pre>
 
 <h2>X-chromosome SNPs</h2>
@@ -414,24 +421,24 @@ genoX[sex==2] &lt;- rbinom(sum(sex==2), 2, 0.3)
 genoX[sex==1] &lt;- rbinom(sum(sex==1), 1, 0.3)
 table(genoX, sex)
 #&gt;      sex
-#&gt; genoX  1  2
-#&gt;     0 96 72
-#&gt;     1 47 70
-#&gt;     2  0 15
+#&gt; genoX   1   2
+#&gt;     0 109  78
+#&gt;     1  50  51
+#&gt;     2   0  12
 </code></pre>
 
 <p>For X-chromosome analyses, the option <tt>Xchr</tt> must be set to <tt>TRUE</tt> as the function cannot distinguish autosomal genotype ro X-chromosome genotype data. For the pseudo-autosomal regions of X-chromosome, this option can be set to <tt>FALSE</tt>.</p>
 
 <pre><code class="r">locReg(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #&gt;   CHR SNP        gL
-#&gt; 1   X SNP 0.9007335
+#&gt; 1   X SNP 0.4117172
 </code></pre>
 
 <p>The scale and joint analysis can be performed similarly following the default options of inverse-normal transformation (<tt>transformed=TRUE</tt>), using least absolute devation (LAD) to estimate residuals in the first stage (<tt>loc_alg=&ldquo;LAD&rdquo;</tt>), and assuming an additive model (<tt>genotypic=FALSE</tt>):</p>
 
 <pre><code class="r">gJLS2(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #&gt;   CHR SNP        gL        gS      gJLS
-#&gt; 1   X SNP 0.8776712 0.4927627 0.7949961
+#&gt; 1   X SNP 0.4351126 0.2307068 0.3311406
 </code></pre>
 
 <h2>Additional options</h2>
@@ -442,7 +449,7 @@ table(genoX, sex)
 
 <pre><code class="r">gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, origLev=TRUE)
 #&gt;   SNP        gL        gS       Lev Flagged      gJLS
-#&gt; 1 SNP 0.8853727 0.5543348 0.9888627       1 0.8401064
+#&gt; 1 SNP 0.0434283 0.9603214 0.8667675       0 0.1742078
 </code></pre>
 
 <h1>A note on genome-wide analyses using R Plugin and R scripts</h1>

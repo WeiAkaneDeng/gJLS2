@@ -33,11 +33,11 @@ The package can also be conveniently used in 1) a bash script as an R plugin fun
 
 
 To install either
-```{r setup1}
+```{r setup1, eval=FALSE}
 install.packages("gJLS2")
 ```
 or
-```{r setup2}
+```{r setup2, eval=FALSE}
 #install.packages("devtools")
 devtools::install_github("WeiAkaneDeng/gJLS2")
 ```
@@ -103,8 +103,8 @@ locReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE);
 The scale analysis automatically returns *p*-values from the recommended association model and assumes the residuals at the mean-stage are calculated using Least Absolute Deviation (LAD) rather than Ordinary Least Squares (OLS):
 
 ```{r gJLS2_example_scale}
-scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
-scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg="OLS")
+scaleReg(GENO=chrXdat[,7:10], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
+scaleReg(GENO=chrXdat[,7:8], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg="OLS")
 ```
 
 The joint-location-scale analysis is then straightforward by combining the sets of **gL** and **gS** *p*-values.
@@ -158,7 +158,7 @@ summary(rowSums(genPP))
 
 The genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> can be analyzed directly, but needs to be an item in a list since the program cannot distinguish the supplied <tt>matrix</tt>/<tt>data.frame</tt> is for an individual imputed SNP or a matrix of SNPs in discrete/dosage genotype values. 
 
-To analyzed the genotypic probabilities using a 2 degree-of-freedom (df) test, the genotypic option needs to be set to <tt>TRUE</tt>, otherwise the function automatically converts the genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> to dosage data and then analyzes using a 1 df test. However, we cannot perform the original Levene's test on the genotypic probabilities as supposed to discrete genotype values.
+To analyzed the genotypic probabilities using a 2 degree-of-freedom (df) test, the genotypic option needs to be set to TRUE, otherwise the function automatically converts the genotypic probability <tt>matrix</tt>/<tt>data.frame</tt> to dosage data and then analyzes using a 1 df test. However, we cannot perform the original Levene's test on the genotypic probabilities as supposed to discrete genotype values.
 
 ```{r dosage_exm1}
 sex <- rbinom(N, 1, 0.5)+1 ## using PLINK coding
