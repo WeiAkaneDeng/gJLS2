@@ -1,7 +1,7 @@
-PLINK v1.90b6.20 64-bit (21 Sep 2020)
+PLINK v1.90b6.21 64-bit (19 Oct 2020)
 Options in effect:
   --R run_gJLS2PLINK_Xchr.R
-  --R-port 6311
+  --R-port 8221
   --bfile ./input/chrX_5_snp
   --covar ./input/Pheno.txt
   --covar-name SEX,covar1,covar2,covar3
@@ -9,11 +9,11 @@ Options in effect:
   --pheno ./input/Pheno.txt
   --pheno-name pheno1
 
-Hostname: MacBook-Pro.local
-Working directory: /Users/weideng/Documents/AcademicResearch/kraken_files/WeiGit/gJLS2/extdata
-Start time: Tue Nov 23 15:23:18 2021
+Hostname: iMacWw.local
+Working directory: /Users/weideng/Documents/Academic/kraken_files/WeiGit/gJLS2/extdata
+Start time: Tue Nov 23 15:36:38 2021
 
-Random number seed: 1637698998
+Random number seed: 1637699798
 8192 MB RAM detected; reserving 4096 MB for main workspace.
 5 variants loaded from .bim file.
 473 people (227 males, 246 females) loaded from .fam.
@@ -27,4 +27,4 @@ Total genotyping rate is 0.999577.
 Phenotype data is quantitative.
 --R: writing to ./output/testRun.auto.R ... done.
 
-End time: Tue Nov 23 15:23:18 2021
+End time: Tue Nov 23 15:36:42 2021
