@@ -38,7 +38,7 @@ gJLS2s <- function(gL, gS){
       stop("Please make sure the two input p-value vectors are of the same length.")
 
     merged_dat <- data.frame("gL" = gL, "gS" = gS)
-    merged_dat$gJLS <- 1-pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4)
+    merged_dat$gJLS <- pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4, lower.tail = FALSE)
 
   } else {
 
@@ -73,7 +73,6 @@ gJLS2s <- function(gL, gS){
         stop("Please make sure the two input p-value data.frame/vectors are of the same length.")
       merged_dat <- cbind("gL" = gL, gS)
       merged_dat$gJLS <- pchisq(-2*log(merged_dat$gL)-2*log(merged_dat$gS), 4, lower.tail = FALSE)
-
     }
 }
 
