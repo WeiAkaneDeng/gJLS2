@@ -10,7 +10,7 @@
 #' @param related optional: a logical indicating whether the samples should be treated as related; if \code{TRUE} while no relatedness covariance information is given, it is then estimated under a \code{cov.structure} and assumes this structure among all within-group errors pertaining to the same pair/cluster if specified using \code{clust}. This option currently only applies to autosomal SNPs.
 #' @param cov.structure optional: should be one of standard classes of correlation structures listed in \code{corClasses} from \pkg{R} package \pkg{nlme}. See \code{?corClasses}. The most commonly used option is \code{corCompSymm} for a compound symmetric correlation structure. This option currently only applies to autosomal SNPs.
 #' @param clust optional: a factor indicating the grouping of samples; it should have at least two distinct values. It could be the family ID (FID) for family studies. This option currently only applies to autosomal SNPs.
-#' @param transformed a logical indicating whether the quantitative response \code{Y} should be transformed using a rank-based method to resemble a normal distribution; recommended for traits with non-symmetric distribution. The default option is \code{FALSE}.
+#' @param transformed a logical indicating whether the quantitative response \code{Y} should be transformed us=ing a rank-based method to resemble a normal distribution; recommended for traits with non-symmetric distribution. The default option is \code{FALSE}.
 #' @param XchrMethod an integer taking values 0 (reports all models), 1.1, 1.2, 2, 3, for the choice of X-chromosome association testing models:
 #' model 1,1: Y~G (females only)
 #' model 1.2: Y~G (males only)

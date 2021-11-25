@@ -103,8 +103,8 @@ locReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE);
 The scale analysis automatically returns *p*-values from the recommended association model and assumes the residuals at the mean-stage are calculated using Least Absolute Deviation (LAD) rather than Ordinary Least Squares (OLS):
 
 ```{r gJLS2_example_scale}
-scaleReg(GENO=chrXdat[,7:10], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
-scaleReg(GENO=chrXdat[,7:8], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg="OLS")
+scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
+scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg="OLS")
 ```
 
 The joint-location-scale analysis is then straightforward by combining the sets of **gL** and **gS** *p*-values.
@@ -141,7 +141,7 @@ where $g_i$ are allele dosages ranging between 0 and 2. A hardcall threshold of 
 
 In our analyses, all three types of imputed data are accepted. The program will automatically detect the status of imputation based on 1) whether the genotype data is supplied as a vector or a <tt>matrix</tt>/<tt>data.frame</tt>; 2) whether the number of distinct genotype values exceeds 4 (0, 1, 2, and/or a missing code, usually -9 or NA). 
 
-following Acar and Sun (2013), here we simulate the imputed data by introducing uncertainty using a Dirichlet distribution. A parameter $a \in [0,1]$ is used to for the correct genotype category and (1 − a)/2 for the other two, where $a = 1$ corresponds to a generative model with no genotype uncertainty and $a = 0.5$ corresponds to roughly 50\% of the "best-guess" genotypes will match the correct genotype groups.
+Following Acar and Sun (2013), here we simulate the imputed data by introducing uncertainty using a Dirichlet distribution. A parameter $a \in [0,1]$ is used to for the correct genotype category and (1 − a)/2 for the other two, where $a = 1$ corresponds to a generative model with no genotype uncertainty and $a = 0.5$ corresponds to roughly 50\% of the "best-guess" genotypes will match the correct genotype groups.
 
 
 ```{r dosage}
