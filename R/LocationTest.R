@@ -29,7 +29,8 @@
 #' @export locReg
 #'
 #'
-#' @note The choice to use a rank-based inverse normal transformation is left to the user's discretion. See XXX for a discussion on the pros and cons of quantile transformation with respect to location association.
+#' @note For the location test, the choice to use a rank-based inverse normal transformation is left to the user's discretion. See McCaw et al., (2020; \doi{10.1111/biom.13214}) for a discussion on the pros and cons of quantile transformation with respect to location association.
+#'
 #' @note For X-chromosome markers, when the samples consist entirely of females or males, we report only results from model 1, regardless of the \code{XchrMethod} option.
 #'
 #' @examples

@@ -1,4 +1,4 @@
-PLINK v1.90b6.21 64-bit (19 Oct 2020)
+PLINK v1.90b6.24 64-bit (6 Jun 2021)
 Options in effect:
   --R run_gJLS2PLINK_Xchr.R
   --R-port 8221
@@ -8,12 +8,13 @@ Options in effect:
   --out ./output/testRun
   --pheno ./input/Pheno.txt
   --pheno-name pheno1
+  --threads 2
 
-Hostname: iMacWw.local
-Working directory: /Users/weideng/Documents/Academic/kraken_files/WeiGit/gJLS2/extdata
-Start time: Tue Nov 23 15:36:38 2021
+Hostname: MacBook-Pro.local
+Working directory: /Users/weideng/Documents/AcademicResearch/kraken_files/WeiGit/gJLS2/extdata
+Start time: Mon Nov 29 10:28:28 2021
 
-Random number seed: 1637699798
+Random number seed: 1638199708
 8192 MB RAM detected; reserving 4096 MB for main workspace.
 5 variants loaded from .bim file.
 473 people (227 males, 246 females) loaded from .fam.
@@ -27,4 +28,4 @@ Total genotyping rate is 0.999577.
 Phenotype data is quantitative.
 --R: writing to ./output/testRun.auto.R ... done.
 
-End time: Tue Nov 23 15:36:42 2021
+End time: Mon Nov 29 10:28:28 2021
