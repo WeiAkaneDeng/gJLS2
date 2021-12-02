@@ -206,10 +206,11 @@ gJLS2(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 
 For both autosome and X-chromosome scale association, it is possible to choose between a genotypic test with 2 df (or 3 for X-chromosome with $GxS$ interaction) or 1 df (or 2 for X-chromosome with $GxS$) test. This is controlled by the option <tt>genotypic=TRUE</tt>.
 
-As an additional option, the sex-stratified scale association *p*-values may also be reported by specifying <tt>origLev=TRUE</tt>, which gives the sex-specific (original) Levene's test *p*-value. This can then be combined with sex-stratified location association p-values for a sex-stratified gJLS analysis using the <tt>gJLSs</tt> function.
+As an additional option, the sex-stratified scale association *p*-values may also be reported by specifying <tt>origLev=TRUE</tt>, which gives the sex-specific (original) Levene's test *p*-value. This can then be combined with sex-stratified location association p-values for a sex-stratified gJLS analysis using the <tt>gJLS2s</tt> function.
 
 ```{r chr_scale}
-gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, origLev=TRUE)
+data("BMIsum")
+gJLS2s(gL = BMIsum[,1:4], gS= BMIsum[,5])
 ```
 
 
@@ -223,7 +224,7 @@ In general, we recommend the users to divide the genotype data by chromosome and
 
 The Rscript ("run_gJLS2.R") in the extdata folder can serve as a starting point to customized the analyses for each user. The arguments available in this Rscript included the very basic ones and additional ones can be added easily. A useful option is "write", where the user can specify the chunk size for results to be written in the file as the program runs. Another important feature is the "nThreads" option, where the user can take advantage of the multiple cores and processors available from high performance computing clusters.
 
-As an example, in the extdata directory, the Rscript can be excuted on the command line and output the results:
+As an example, in the ./inst/extdata/ directory, the Rscript can be executed on the command line and output the results:
 
 ```{bash, eval=FALSE}
 Rscript run_gJLS2.R --bfile ./input/chrX_5_snp \

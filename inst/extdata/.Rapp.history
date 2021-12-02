@@ -1,30 +1,18 @@
 setwd("~/Documents/AcademicResearch/kraken_files/WeiGit/gJLS2/extdata")#
-
 sum_file <- read.table("./input/GIANT_BMI_chr16_gJLS_summary.txt", head=T)#
-
 	final_output <- gJLS2::gJLS2s(gL = sum_file$gL, gS = sum_file$gS)#
 #
-
 head(final_output)#
-
 min(final_output$gJLS)#
-
  gJLS2s#
-
 library(gJLS2)#
-
 gJLS2s#
-
 which.min(final_output$gJLS)#
 #
-
 final_output [341,]#
-
 pchisq(-2*log(2.6e-22)-2*log(0.074), 4, lower.tail = FALSE)#
 #
-
 gJLS2s(gL=final_output [341,1], gS=final_output [341,2])#
-
 #' generalized Joint-Location-Scale (gJLS) test with summary statistics#
 #'#
 #' This function takes as input the gL and gS p-values for each SNP and combine to produce the gJLS p-values. It is used for genome-wide analysis where only the gL or gS p-values are available, caution should be exercised when combing gL and gS p-values obtained from separate datasets.#
@@ -110,55 +98,38 @@ gJLS2s <- function(gL, gS){#
 #
 #
 #
-
 380+120*5#
-
 380+120*#
 980*#
-
 980*0.85#
-
 112*!2#
-
 112*12#
 #
-
 1300+1500#
-
 833+1400*0.85#
-
 0.85*(380+120*5)#
 #
-
 0.85*(380+120*6)#
 #
 #
-
 0.85*(380+120*7)#
 #
 #
 #
-
 0.85*(380+120*\10)#
 #
 #
 #
 #
-
 0.85*(380+120*10)#
 #
 #
 #
 #
 #
-
 0.85*(1400+987)#
-
 median(rnorm(1000))#
-
 a <- rnorm(1000)#
-
 median(a)#
-
 mean(a)#
 

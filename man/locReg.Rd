@@ -35,7 +35,7 @@ model 1.2: Y~G (males only)
 model 2: Y~G+S+GxSex; with p-value given by comparing Y~G+Sex+GxSex vs. Y~Sex (the additively coded G is robust to X-chromosome inactivation uncertainty). This is also the option for dosage genotypes.
 model 3 (recommended): Y~G+G_D+S+GxSex; with p-value given by comparing Y ~ G+G_D+Sex+GxSex vs. Y ~ Sex (G_D is an indicator for female heterozygotes, this model is robust to X-chromosome inactivation uncertainty and skewed inactivation). For imputed data in the form of genotypic probabilities, the model becomes: Y ~ G1 + G2 + G1xSex + Sex, where G1 and G2 are the genotypic probabilities for the heterozygote and alternative allele homozygote.}
 
-\item{transformed}{a logical indicating whether the quantitative response \code{Y} should be transformed using a rank-based method to resemble a normal distribution; recommended for traits with non-symmetric distribution. The default option is \code{FALSE}.}
+\item{transformed}{a logical indicating whether the quantitative response \code{Y} should be transformed us=ing a rank-based method to resemble a normal distribution; recommended for traits with non-symmetric distribution. The default option is \code{FALSE}.}
 
 \item{related}{optional: a logical indicating whether the samples should be treated as related; if \code{TRUE} while no relatedness covariance information is given, it is then estimated under a \code{cov.structure} and assumes this structure among all within-group errors pertaining to the same pair/cluster if specified using \code{clust}. This option currently only applies to autosomal SNPs.}
 
@@ -52,7 +52,7 @@ a vector of location association \emph{p}-values for each SNP.
 This function takes as input the genotype of SNPs (\code{GENO}), the SEX (\code{SEX}), and a quantitative trait (\code{Y}) in a sample population, and possibly additional covariates, such as principal components. The function returns the location association \emph{p}-values for each SNP.
 }
 \note{
-The choice to use a rank-based inverse normal transformation is left to the user's discretion. See XXX for a discussion on the pros and cons of quantile transformation with respect to location association.
+For the location test, the choice to use a rank-based inverse normal transformation is left to the user's discretion. See McCaw et al., (2020; \doi{10.1111/biom.13214}) for a discussion on the pros and cons of quantile transformation with respect to location association.
 
 For X-chromosome markers, when the samples consist entirely of females or males, we report only results from model 1, regardless of the \code{XchrMethod} option.
 }

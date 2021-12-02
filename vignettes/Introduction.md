@@ -132,16 +132,20 @@ The scale analysis automatically returns *p*-values from the recommended associa
 
 
 ```r
-scaleReg(GENO=chrXdat[,7:10], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
+scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE)
 #>   CHR         SNP        gS
 #> 1   X rs5983012_A 0.1391909
 #> 2   X rs4119090_G 0.9828430
 #> 3   X rs5911042_T 0.1487017
 #> 4   X  rs986810_C 0.9563390
-scaleReg(GENO=chrXdat[,7:8], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg="OLS")
+#> 5   X  rs180495_G 0.3476929
+scaleReg(GENO=chrXdat[,7:11], SEX=chrXdat$SEX, Y=chrXdat$PHENOTYPE, Xchr=TRUE, loc_alg="OLS")
 #>   CHR         SNP        gS
 #> 1   X rs5983012_A 0.1739062
 #> 2   X rs4119090_G 0.9999999
+#> 3   X rs5911042_T 0.1163023
+#> 4   X  rs986810_C 0.9581589
+#> 5   X  rs180495_G 0.3619056
 ```
 
 The joint-location-scale analysis is then straightforward by combining the sets of **gL** and **gS** *p*-values.
@@ -185,7 +189,7 @@ where $g_i$ are allele dosages ranging between 0 and 2. A hardcall threshold of 
 
 In our analyses, all three types of imputed data are accepted. The program will automatically detect the status of imputation based on 1) whether the genotype data is supplied as a vector or a <tt>matrix</tt>/<tt>data.frame</tt>; 2) whether the number of distinct genotype values exceeds 4 (0, 1, 2, and/or a missing code, usually -9 or NA). 
 
-following Acar and Sun (2013), here we simulate the imputed data by introducing uncertainty using a Dirichlet distribution. A parameter $a \in [0,1]$ is used to for the correct genotype category and (1 − a)/2 for the other two, where $a = 1$ corresponds to a generative model with no genotype uncertainty and $a = 0.5$ corresponds to roughly 50\% of the "best-guess" genotypes will match the correct genotype groups.
+Following Acar and Sun (2013), here we simulate the imputed data by introducing uncertainty using a Dirichlet distribution. A parameter $a \in [0,1]$ is used to for the correct genotype category and (1 − a)/2 for the other two, where $a = 1$ corresponds to a generative model with no genotype uncertainty and $a = 0.5$ corresponds to roughly 50\% of the "best-guess" genotypes will match the correct genotype groups.
 
 
 
@@ -207,13 +211,13 @@ genPP <- rbind(rdirichlet(sum(geno==0),c(a,(1-a)/2,(1-a)/2)),
         rdirichlet(sum(geno==1),c((1-a)/2,a,(1-a)/2)),
         rdirichlet(sum(geno==2),c((1-a)/2,(1-a)/2,a)))
 head(genPP);
-#>              [,1]        [,2]       [,3]
-#> [1,] 9.679015e-02 0.005539756 0.89767009
-#> [2,] 7.608153e-07 0.312489809 0.68750943
-#> [3,] 7.900968e-01 0.169603206 0.04029996
-#> [4,] 2.909121e-01 0.223744150 0.48534374
-#> [5,] 2.143662e-01 0.564383222 0.22125059
-#> [6,] 1.953248e-02 0.508152364 0.47231516
+#>           [,1]         [,2]        [,3]
+#> [1,] 0.7757769 2.218303e-01 0.002392827
+#> [2,] 0.9984017 3.013217e-07 0.001597968
+#> [3,] 0.8949852 3.126178e-02 0.073752994
+#> [4,] 0.3116164 3.995173e-03 0.684388445
+#> [5,] 0.9932653 6.172884e-03 0.000561811
+#> [6,] 0.2234763 7.686409e-01 0.007882812
 summary(rowSums(genPP))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #>       1       1       1       1       1       1
@@ -229,14 +233,14 @@ sex <- rbinom(N, 1, 0.5)+1 ## using PLINK coding
 y <- rnorm(N)
 covar <- matrix(rnorm(N*10), ncol=10)
 gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, genotypic = TRUE) ## geno probabilities
-#>     SNP        gL        gS      gJLS
-#> 1 SNP_1 0.7628413 0.2097766 0.4532612
+#>     SNP         gL        gS       gJLS
+#> 1 SNP_1 0.09348609 0.1870613 0.08824716
 gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar) ## geno dosage
-#>     SNP        gL        gS      gJLS
-#> 1 SNP_1 0.7628413 0.1539806 0.3690249
+#>     SNP         gL        gS      gJLS
+#> 1 SNP_1 0.09348609 0.2358194 0.1061426
 try(gJLS2(GENO=list(genPP), SEX=sex, Y=y, COVAR=covar, origLev = TRUE)) ## cannot perform Levene's test
-#>     SNP        gL        gS      gJLS
-#> 1 SNP_1 0.7628413 0.1539806 0.3690249
+#>     SNP         gL        gS      gJLS
+#> 1 SNP_1 0.09348609 0.2358194 0.1061426
 ```
 
 ## Related samples
@@ -246,8 +250,8 @@ The <tt>related=TRUE</tt> option can be used to deal with related samples, usual
 
 ```r
 gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, related=TRUE, clust = rep(1:3, c(N/2, N/4, N/4)))
-#>   SNP        gL gS gJLS
-#> 1 SNP 0.1762559 NA   NA
+#>   SNP        gL        gS      gJLS
+#> 1 SNP 0.1601864 0.1752936 0.1284001
 ```
 
 
@@ -263,9 +267,9 @@ genoX[sex==1] <- rbinom(sum(sex==1), 1, 0.3)
 table(genoX, sex)
 #>      sex
 #> genoX   1   2
-#>     0 121  58
-#>     1  44  63
-#>     2   0  14
+#>     0 102  68
+#>     1  45  68
+#>     2   0  17
 ```
 
 For X-chromosome analyses, the option <tt>Xchr</tt> must be set to <tt>TRUE</tt> as the function cannot distinguish autosomal genotype ro X-chromosome genotype data. For the pseudo-autosomal regions of X-chromosome, this option can be set to <tt>FALSE</tt>.
@@ -274,7 +278,7 @@ For X-chromosome analyses, the option <tt>Xchr</tt> must be set to <tt>TRUE</tt>
 ```r
 locReg(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #>   CHR SNP        gL
-#> 1   X SNP 0.8256308
+#> 1   X SNP 0.8516859
 ```
 
 The scale and joint analysis can be performed similarly following the default options of inverse-normal transformation (<tt>transformed=TRUE</tt>), using least absolute devation (LAD) to estimate residuals in the first stage (<tt>loc_alg="LAD"</tt>), and assuming an additive model (<tt>genotypic=FALSE</tt>):
@@ -283,7 +287,7 @@ The scale and joint analysis can be performed similarly following the default op
 ```r
 gJLS2(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #>   CHR SNP        gL        gS      gJLS
-#> 1   X SNP 0.8279324 0.1796734 0.4322055
+#> 1   X SNP 0.8564939 0.6859791 0.8999986
 ```
 
 
@@ -291,13 +295,113 @@ gJLS2(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 
 For both autosome and X-chromosome scale association, it is possible to choose between a genotypic test with 2 df (or 3 for X-chromosome with $GxS$ interaction) or 1 df (or 2 for X-chromosome with $GxS$) test. This is controlled by the option <tt>genotypic=TRUE</tt>.
 
-As an additional option, the sex-stratified scale association *p*-values may also be reported by specifying <tt>origLev=TRUE</tt>, which gives the sex-specific (original) Levene's test *p*-value. This can then be combined with sex-stratified location association p-values for a sex-stratified gJLS analysis using the <tt>gJLSs</tt> function.
+As an additional option, the sex-stratified scale association *p*-values may also be reported by specifying <tt>origLev=TRUE</tt>, which gives the sex-specific (original) Levene's test *p*-value. This can then be combined with sex-stratified location association p-values for a sex-stratified gJLS analysis using the <tt>gJLS2s</tt> function.
 
 
 ```r
-gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, origLev=TRUE)
-#>   SNP        gL         gS       Lev Flagged       gJLS
-#> 1 SNP 0.1725146 0.03558213 0.2524514       0 0.03740264
+data("BMIsum")
+gJLS2s(gL = BMIsum[,1:4], gS= BMIsum[,5])
+#>     CHR        SNP       BP      gL    gS         gJLS
+#> 1    16  rs1000014 24417536 4.3e-01 0.710 0.6675263538
+#> 2    16  rs1000047  8138689 1.2e-01 0.550 0.2453946354
+#> 3    16  rs1000077 82782756 1.9e-01 0.710 0.4051345825
+#> 4    16  rs1000078 82782587 7.6e-01 0.610 0.8199846965
+#> 5    16  rs1000100 59269792 3.9e-01 0.260 0.3334723738
+#> 6    16  rs1000174 14471228 4.3e-01 0.014 0.0367982615
+#> 7    16  rs1000193  6747102 1.1e-01 0.440 0.1949675645
+#> 8    16  rs1000454 81589567 5.2e-03 0.420 0.0155644883
+#> 9    16  rs1000455 81589585 2.9e-03 0.400 0.0090008289
+#> 10   16  rs1000640 69905668 6.1e-02 0.100 0.0372067457
+#> 11   16  rs1000686 77262198 1.3e-01 0.098 0.0683247299
+#> 12   16  rs1000711 83888758 5.7e-01 0.530 0.6637128513
+#> 13   16  rs1000742 55325460 8.5e-01 0.910 0.9721577025
+#> 14   16  rs1001170  5082231 5.3e-01 0.160 0.2940405856
+#> 15   16  rs1001171  5082289 5.9e-01 0.180 0.3443461903
+#> 16   16  rs1001362 56674858 3.7e-01 0.670 0.5936535273
+#> 17   16  rs1001493 72625552 7.8e-05 0.720 0.0006058151
+#> 18   16  rs1001553 82487917 9.5e-01 0.970 0.9968349305
+#> 19   16  rs1001554 82487790 8.6e-02 0.960 0.2884836269
+#> 20   16  rs1001608 50881317 1.3e-02 0.950 0.0666171253
+#> 21   16  rs1001631 60700940 3.9e-01 0.046 0.0900717603
+#> 22   16  rs1001655 84441409 5.3e-01 0.590 0.6762171942
+#> 23   16  rs1001722 73408313 3.3e-01 0.790 0.6111811586
+#> 24   16  rs1001776  4222512 7.8e-01 0.960 0.9654153753
+#> 25   16  rs1001872 48538811 9.9e-02 0.780 0.2749878940
+#> 26   16  rs1001890  9304299 2.6e-03 0.380 0.0078247899
+#> 27   16  rs1001897  9409104 8.6e-01 0.830 0.9544594316
+#> 28   16  rs1001937 13531512 1.0e-04 0.890 0.0009190918
+#> 29   16  rs1002077 76498403 1.3e-02 0.053 0.0057051055
+#> 30   16  rs1002078 76498960 4.7e-03 0.056 0.0024326514
+#> 31   16  rs1002252 71286676 2.1e-02 0.380 0.0465299186
+#> 32   16  rs1002403 26354051 5.8e-01 0.550 0.6834779722
+#> 33   16  rs1002456 57852819 2.1e-02 0.940 0.0972216368
+#> 34   16  rs1002505 59269167 7.2e-01 0.280 0.5244563001
+#> 35   16  rs1002965  3230472 2.2e-01 0.700 0.4421036122
+#> 36   16  rs1002970 13432333 3.4e-02 0.022 0.0061321845
+#> 37   16  rs1002975 76501609 2.8e-03 0.048 0.0013325344
+#> 38   16  rs1003067 14248851 7.4e-03 0.780 0.0355251399
+#> 39   16  rs1003158 60950591 2.2e-02 0.820 0.0904735543
+#> 40   16  rs1003172 20524874 7.5e-01 0.820 0.9139718019
+#> 41   16  rs1003192 55726670 1.7e-03 0.780 0.0101115302
+#> 42   16  rs1003330  3541039 1.3e-01 0.870 0.3595995155
+#> 43   16  rs1003341 25548973 1.2e-01 0.980 0.3693188302
+#> 44   16  rs1003597  6040598 8.7e-01 0.610 0.8669294371
+#> 45   16  rs1003603 11114623 9.7e-01 0.750 0.9589477812
+#> 46   16  rs1003614  7630143 1.7e-01 0.110 0.0931116338
+#> 47   16  rs1003615  7630218 1.5e-01 0.093 0.0735482470
+#> 48   16  rs1003677  6456763 3.2e-01 0.340 0.3501449412
+#> 49   16  rs1003830 26788718 3.6e-01 0.780 0.6374476200
+#> 50   16  rs1004041  1271890 6.6e-01 0.380 0.5976813471
+#> 51   16  rs1004047 90053336 1.8e-02 0.370 0.0400374944
+#> 52   16  rs1004098 27818054 3.4e-02 0.190 0.0390321337
+#> 53   16  rs1004101 19346639 4.7e-01 0.170 0.2818056562
+#> 54   16  rs1004185 23914632 5.4e-01 0.044 0.1126165024
+#> 55   16  rs1004187 23916258 5.1e-01 0.038 0.0958052950
+#> 56   16  rs1004281 71357918 1.4e-02 0.400 0.0346359366
+#> 57   16  rs1004299 54343840 7.5e-01 0.490 0.7353792454
+#> 58   16  rs1004363 57595999 5.5e-01 0.930 0.8544135353
+#> 59   16  rs1004507  6456665 4.7e-01 0.500 0.5753198947
+#> 60   16  rs1004637 14205744 5.5e-05 0.220 0.0001490999
+#> 61   16  rs1004695 84917408 2.8e-01 0.160 0.1839285119
+#> 62   16  rs1004704 48537421 2.2e-01 0.640 0.4168264088
+#> 63   16  rs1004749 23314851 3.4e-01 0.930 0.6802664680
+#> 64   16  rs1004792  3094261 2.0e-02 0.710 0.0746140891
+#> 65   16 rs10048076 10931623 8.1e-01 0.960 0.9731998569
+#> 66   16 rs10048083  3417465 8.3e-01 0.850 0.9516126222
+#> 67   16 rs10048086 69492274 1.2e-02 0.890 0.0591606045
+#> 68   16 rs10048092 48440630 6.5e-01 0.640 0.7808611278
+#> 69   16 rs10048094 80243012 1.6e-01 0.970 0.4443439122
+#> 70   16 rs10048136 10929441 8.5e-01 0.880 0.9651835212
+#> 71   16 rs10048138 81264177 8.4e-01 0.400 0.7024564240
+#> 72   16 rs10048140 86399781 9.7e-01 0.860 0.9854255255
+#> 73   16 rs10048142 86399806 9.9e-01 0.960 0.9987490628
+#> 74   16 rs10048143 86399882 9.8e-01 0.890 0.9914615959
+#> 75   16 rs10048146 86710660 2.4e-01 0.960 0.5686129959
+#> 76   16 rs10048148  3417450 1.4e-01 0.280 0.1661718785
+#> 77   16  rs1004867 49635132 5.5e-01 0.770 0.7873719474
+#> 78   16  rs1004892 19356105 9.3e-01 0.880 0.9824106863
+#> 79   16  rs1004909 48725580 6.5e-04 0.340 0.0020812339
+#> 80   16  rs1004911 57575397 1.6e-02 0.900 0.0754635898
+#> 81   16  rs1004928 19357771 9.2e-01 0.830 0.9695514625
+#> 82   16  rs1004930 54345296 6.0e-02 0.960 0.2220038042
+#> 83   16  rs1004936  9949163 4.6e-02 0.520 0.1132143252
+#> 84   16  rs1004998 49633732 6.2e-01 0.810 0.8480936812
+#> 85   16  rs1005190   855717 2.0e-01 0.300 0.2288046430
+#> 86   16  rs1005410 13701374 9.1e-01 0.220 0.5222093701
+#> 87   16  rs1005454  1246270 3.3e-01 0.820 0.6243049302
+#> 88   16  rs1005481 13863731 5.3e-01 0.140 0.2671935418
+#> 89   16  rs1005482 13863740 1.4e-01 0.590 0.2885833864
+#> 90   16  rs1005588 27590474 2.0e-01 0.066 0.0703235075
+#> 91   16  rs1005697 57842705 5.0e-01 0.400 0.5218875825
+#> 92   16  rs1005699 55159147 2.1e-01 0.560 0.3693188302
+#> 93   16  rs1005700 55159234 2.9e-01 0.530 0.4415420790
+#> 94   16  rs1005715 74514032 2.3e-04 0.650 0.0014663280
+#> 95   16  rs1005912 55504827 3.2e-01 0.620 0.5193060647
+#> 96   16  rs1005913 55504521 6.9e-01 0.880 0.9101302905
+#> 97   16  rs1005924 78325937 3.4e-02 0.990 0.1478160417
+#> 98   16  rs1006225 86063938 4.3e-01 0.530 0.5649295373
+#> 99   16  rs1006305 27172885 7.2e-02 0.980 0.2576351542
+#> 100  16  rs1006306 27172977 8.8e-02 0.840 0.2664647353
 ```
 
 
