@@ -231,7 +231,7 @@ In general, we recommend the users to divide the genotype data by chromosome and
 
 The Rscript ("run_gJLS2.R") in the extdata folder can serve as a starting point to customized the analyses for each user. The arguments available in this Rscript included the very basic ones and additional ones can be added easily. A useful option is "write", where the user can specify the chunk size for results to be written in the file as the program runs. Another important feature is the "nThreads" option, where the user can take advantage of the multiple cores and processors available from high performance computing clusters.
 
-As an example, in the extdata directory, the Rscript can be excuted on the command line and output the results:
+As an example, in the ./inst/extdata/ directory, the Rscript can be executed on the command line and output the results:
 
 ```{bash, eval=FALSE}
 Rscript run_gJLS2.R --bfile ./input/chrX_5_snp \
