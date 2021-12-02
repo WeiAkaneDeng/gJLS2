@@ -216,7 +216,8 @@ For both autosome and X-chromosome scale association, it is possible to choose b
 As an additional option, the sex-stratified scale association *p*-values may also be reported by specifying <tt>origLev=TRUE</tt>, which gives the sex-specific (original) Levene's test *p*-value. This can then be combined with sex-stratified location association p-values for a sex-stratified gJLS analysis using the <tt>gJLSs</tt> function.
 
 ```{r chr_scale}
-gJLS2(GENO=geno, SEX=sex, Y=y, COVAR=covar, origLev=TRUE)
+data("BMIsum")
+gJLS2s(gL = BMIsum[,1:4], gS= BMIsum[,5])
 ```
 
 
