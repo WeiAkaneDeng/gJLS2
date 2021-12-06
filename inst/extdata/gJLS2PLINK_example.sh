@@ -40,7 +40,7 @@ source("testRun.debug.R")
  
   f1 <- function(s) 
        {    
-      r <-  gJLS2(GENO=s, SEX=ifelse(COVAR[,1]==0, 2, COVAR[,1]), Y=PHENO, COVAR=COVAR[,-1], Xchr=TRUE)
+      r <-  gJLS2(GENO=s, SEX=ifelse(COVAR[,1]==0, 2, COVAR[,1]), Y=PHENO, COVAR=COVAR[,-1], Xchr=TRUE, genotypic=TRUE)
       rr <- as.numeric(r[3:5])
       
       c( length(rr) , rr )

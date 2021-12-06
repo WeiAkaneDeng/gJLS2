@@ -17,7 +17,7 @@ Rplink <- function(PHENO,GENO,CLUSTER,COVAR){
  
   f1 <- function(s) 
        {    
-      r <-  gJLS2(GENO=s, SEX=COVAR[,1], Y=PHENO, COVAR=COVAR[,-1], Xchr=TRUE)
+      r <-  gJLS2(GENO=s, SEX=COVAR[,1], Y=PHENO, COVAR=COVAR[,-1], Xchr=TRUE, genotypic=TRUE)
       rr <- as.numeric(r[3:5])
       
       c( length(rr) , rr )
