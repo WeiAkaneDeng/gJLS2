@@ -1,48 +1,48 @@
 ## produce the correlation matrix under specification
-output_correlation <- function(y, clust = NULL, cov.structure = "corCompSymm"){
+output_correlation <- function(y, clust = NULL, cov.structure = "corCompSymm", r2=0){
 
   ## assuming cov.structure is either compound symmetry (cs) or ar1
   if (!cov.structure %in% c("corAR1", "corARMA", "corCAR1", "corCompSymm", "corExp", "corGaus", "corLin", "corRatio", "corSpher", "corSymm"))
     stop("The cov.structure argument does match one of the standard classes of correlation structures in corClasses. See ?nlme::corClasses for more details.")
 
   if (cov.structure == "corAR1") {
-     correlation = nlme::corAR1(form = ~ 1 | clust)
+     correlation = nlme::corAR1(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corARMA") {
-    correlation = nlme::corARMA(form = ~ 1 | clust)
+    correlation = nlme::corARMA(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corCAR1") {
-    correlation = nlme::corCAR1(form = ~ 1 | clust)
+    correlation = nlme::corCAR1(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corCompSymm") {
-    correlation = nlme::corCompSymm(form = ~ 1 | clust)
+    correlation = nlme::corCompSymm(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corExp") {
-    correlation = nlme::corExp(form = ~ 1 | clust)
+    correlation = nlme::corExp(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corGaus") {
-    correlation = nlme::corGaus(form = ~ 1 | clust)
+    correlation = nlme::corGaus(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corLin") {
-    correlation = nlme::corLin(form = ~ 1 | clust)
+    correlation = nlme::corLin(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corRatio") {
-    correlation = nlme::corRatio(form = ~ 1 | clust)
+    correlation = nlme::corRatio(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corSpher") {
-    correlation = nlme::corSpher(form = ~ 1 | clust)
+    correlation = nlme::corSpher(form = ~ 1 | clust, value = r2)
   }
 
   if (cov.structure == "corSymm") {
-     correlation = nlme::corSymm(form = ~ 1 | clust)
+     correlation = nlme::corSymm(form = ~ 1 | clust, value = r2)
   }
   return(correlation)
 }

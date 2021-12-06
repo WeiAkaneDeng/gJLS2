@@ -8,13 +8,12 @@ Options in effect:
   --out ./output/testRun
   --pheno ./input/Pheno.txt
   --pheno-name pheno1
-  --threads 2
 
 Hostname: MacBook-Pro.local
-Working directory: /Users/weideng/Documents/AcademicResearch/kraken_files/WeiGit/gJLS2/extdata
-Start time: Mon Nov 29 10:28:28 2021
+Working directory: /Users/weideng/Documents/AcademicResearch/kraken_files/WeiGit/gJLS2/inst/extdata
+Start time: Mon Dec  6 12:52:33 2021
 
-Random number seed: 1638199708
+Random number seed: 1638813153
 8192 MB RAM detected; reserving 4096 MB for main workspace.
 5 variants loaded from .bim file.
 473 people (227 males, 246 females) loaded from .fam.
@@ -28,4 +27,4 @@ Total genotyping rate is 0.999577.
 Phenotype data is quantitative.
 --R: writing to ./output/testRun.auto.R ... done.
 
-End time: Mon Nov 29 10:28:28 2021
+End time: Mon Dec  6 12:52:33 2021
