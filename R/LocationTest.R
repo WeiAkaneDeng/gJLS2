@@ -4,7 +4,7 @@
 #'
 #' @param GENO a list of a genotype matrix/vector of SNPs, must contain values 0, 1, 2's coded for the number of reference allele. Alternatively, for imputed genotypes, it could either be a vector of dosage values between 0 and 2, or a list of matrix of genotype probabilities, numerically between 0 and 1 for each genotype. The length/dimension of \code{GENO} should match that of \code{Y}, and/or \code{SEX} and \code{COVAR}.
 #' @param SEX the genetic sex of individuals in the sample population, must be a vector of 1's and 2's following PLINK default coding, where males are coded as 1 and females 2. \strong{Optional for analysis of autosomal SNPs, but required for X-chromosome.}
-#' @param Y a numeric vector of quantitative trait, such as human height.
+#' @param Y a numeric vector of quantitative trait, such as human height; or a vector of integers for a binary outcome.
 #' @param COVAR optional: a vector or a matrix of covariates, such as age or principal components.
 #' @param Xchr a logical indicator for whether the analysis is for X-chromosome SNPs, if \code{TRUE} then the following association testing model is used: Y~G+G_D+S+GxS; with p-value given by comparing Y~G+S+GxS vs. Y~S (G is the additive coded genotype; G_D is an indicator for female heterozygotes).
 #' @param related optional: a logical indicating whether the samples should be treated as related; if \code{TRUE} while no relatedness covariance information is given, it is then estimated under a \code{cov.structure} and assumes this structure among all within-group errors pertaining to the same pair/cluster if specified using \code{clust}. This option currently only applies to autosomal SNPs.
@@ -92,8 +92,8 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
   if (missing(Y))
     stop("The quantitative trait input is missing.")
 
-  if (class(Y)!="numeric")
-    stop("Please make sure the quantitaitve trait is a numeric vector.")
+  if (class(Y)!="numeric" & class(Y)!="integer")
+    stop("Please make sure the quantitaitve trait is a numeric vector or a binary outcome is an integer vector.")
 
   numCores <- parallel::detectCores()
   if (nCores > numCores){
@@ -222,7 +222,7 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
 
 
 
-locReg_per_SNP <- function(geno_one, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3, transformed=FALSE, related = FALSE, cov.structure = "corCompSymm", clust = NULL){
+locReg_per_SNP <- function(geno_one, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3, transformed=FALSE, related = FALSE, cov.structure = "corCompSymm", clust = NULL, r2=0){
 
   ## check minimal inputes: geno_one, Y, Xchr, XchrMethods, transformed
   if (missing(geno_one))
@@ -323,9 +323,8 @@ locReg_per_SNP <- function(geno_one, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, Xc
   if (missing(Y))
     stop("The quantitative trait input is missing.")
 
-  if (class(Y)!="numeric")
-    stop("Please make sure the quantitaitve trait is a numeric vector.")
-
+  if (class(Y)!="numeric" & class(Y)!="integer")
+    stop("Please make sure the quantitaitve trait is a numeric vector or a binary outcome is an integer vector.")
 
 	CC_study <- ifelse(length(unique(Y[!is.na(Y)]))==2, TRUE, FALSE)
 
@@ -357,14 +356,14 @@ if (!Xchr) {
               ### no covariates:
               use_dat <- complete.cases(geno_one_use, Y)
               datafr <- data.frame("y" = Y[use_dat], "g" = geno_one_use[use_dat])
-             
+
              if (!CC_study){
               pval <- summary(lm(y ~ g, data=datafr))$coef[2,4]
               } else {
 			  pval <- summary(glm(y ~ g, data=datafr))$coef[2,4]
- 	
+
               }
-          
+
 
              } else {
                ### covariates:
@@ -374,12 +373,12 @@ if (!Xchr) {
                } else {
                  datafr <- data.frame("y" = Y[use_dat], "g" = geno_one_use[use_dat], "covar" = COVAR_use[use_dat,])
                }
-				
+
 				if (!CC_study){
                pval <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr))$coef[2,4]
                 } else {
 			pval <- summary(glm(as.formula(paste("y ~ g +", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr))$coef[2,4]
- 	
+
                 }
              }
 
@@ -398,9 +397,9 @@ if (!Xchr) {
                 use_dat <- complete.cases(geno_one_use, clust, Y)
                 datafr <- data.frame("y" = Y[use_dat], "g" = geno_one_use[use_dat], "clust" = clust[use_dat])
                 correlation_est = output_correlation(y = datafr$y, clust = datafr$clust, cov.structure = cov.structure, r2=r2)
-               
+
                 fit <- nlme::gls(y~g, data=datafr, correlation=correlation_est, method="ML",control=lmeControl(opt = "optim"))
-                
+
                 pval <- anova(fit,Terms=2)[1,3]
              } else {
 
@@ -454,11 +453,11 @@ if (length(table(geno_one_use))==1) {
         ### no covariates:
         if (sum(SEX==1, na.rm=TRUE) == sum(!is.na(SEX))){
           warning("Only Males detected")
-		
+
 		if (!CC_study){
           p2 <- summary(lm(y~g, data=datafr[datafr$sex==1,]))$coef[2,4]
           } else {
-          p2 <- summary(glm(y~g, data=datafr[datafr$sex==1,]))$coef[2,4]          	
+          p2 <- summary(glm(y~g, data=datafr[datafr$sex==1,]))$coef[2,4]
           }
           pval <- p2
           names(pval) <- "model 1 (males)"
@@ -468,7 +467,7 @@ if (length(table(geno_one_use))==1) {
 		if (!CC_study){
 			p1 <- summary(lm(y~g, data=datafr[datafr$sex==0,]))$coef[2,4]
 			} else {
-			p1 <- summary(glm(y~g, data=datafr[datafr$sex==0,]))$coef[2,4]	
+			p1 <- summary(glm(y~g, data=datafr[datafr$sex==0,]))$coef[2,4]
 			}
           pval <-p1
           names(pval) <- "model 1 (females)"
@@ -478,8 +477,8 @@ if (length(table(geno_one_use))==1) {
           if (!imputed){
             ## heterzygote in females only
               datafr$gD <- ifelse(datafr$g==1 & datafr$sex == 0, 1, 0)
-       	
-       		if (!CC_study){       
+
+       		if (!CC_study){
               p1 <- summary(lm(y~g, data=datafr[datafr$sex==0,]))$coef[2,4]
               p2 <- summary(lm(y~g, data=datafr[datafr$sex==1,]))$coef[2,4]
               m1 <- lm(y~sex+g+gD+g:sex, data=datafr)
@@ -494,7 +493,7 @@ if (length(table(geno_one_use))==1) {
               m11 <- glm(y~sex+g+g:sex, data=datafr)
               m2 <- glm(y~sex, data=datafr)
               p_val_01 <- anova(m11, m2, test="Rao")[2,6]
-              p_val_02 <- anova(m1, m2, test="Rao")[2,6]              	
+              p_val_02 <- anova(m1, m2, test="Rao")[2,6]
               }
 
               pval_Xchr <-c(p1, p2, p_val_01, p_val_02)
@@ -515,7 +514,7 @@ if (length(table(geno_one_use))==1) {
               ## imputed: but in dosage values (models 1,2 only)
               if (is.null(dim(geno_one))){
 
-       		if (!CC_study){       
+       		if (!CC_study){
                 p1 <- summary(lm(y~g, data=datafr[datafr$sex==0,]))$coef[2,4]
                 p2 <- summary(lm(y~g, data=datafr[datafr$sex==1,]))$coef[2,4]
                 m11 <- lm(y~sex+g+g:sex, data=datafr)
@@ -526,7 +525,7 @@ if (length(table(geno_one_use))==1) {
                 p2 <- summary(glm(y~g, data=datafr[datafr$sex==1,]))$coef[2,4]
                 m11 <- glm(y~sex+g+g:sex, data=datafr)
                 m2 <- glm(y~sex, data=datafr)
-                p_val_01 <- anova(m11, m2, test="Rao")[2,6]					
+                p_val_01 <- anova(m11, m2, test="Rao")[2,6]
 				}
                 pval_Xchr <-c(p1, p2, p_val_01)
                 names(pval_Xchr) <- c("model 1 (females)", "model 1 (males)", "gL")
@@ -550,7 +549,7 @@ if (length(table(geno_one_use))==1) {
                 use_dat <- complete.cases(geno_one_use, SEX, Y, geno_one)
                 datafr <- data.frame("y" = Y[use_dat], "g" = geno_one_use[use_dat], "g1" = geno_one[use_dat, 2], "g2" = geno_one[use_dat, 3], "sex" =  SEX[use_dat])
 
-       		if (!CC_study){       
+       		if (!CC_study){
                 p1 <- summary(lm(y~g, data=datafr[datafr$sex==0,]))$coef[2,4]
                 p2 <- summary(lm(y~g, data=datafr[datafr$sex==1,]))$coef[2,4]
                 m11 <- lm(y~sex+g+g:sex, data=datafr)
@@ -565,7 +564,7 @@ if (length(table(geno_one_use))==1) {
                 m2 <- glm(y~sex, data=datafr)
                 m1 <- glm(y~sex+g1+g2+g1:sex, data=datafr)
                 p_val_02 <- anova(m1, m2, test="Rao")[2,6]
-                p_val_01 <- anova(m11, m2, test="Rao")[2,6]					
+                p_val_01 <- anova(m11, m2, test="Rao")[2,6]
 				}
                 pval_Xchr <-c(p1, p2, p_val_01)
                 names(pval_Xchr) <- c("model 1 (females)", "model 1 (males)", "model 2", "gL")
@@ -596,18 +595,18 @@ if (length(table(geno_one_use))==1) {
 
         if (sum(SEX==1,na.rm=TRUE) == sum(!is.na(SEX))){
           warning("Only Males detected")
-		
-		if (!CC_study){       
+
+		if (!CC_study){
           p2 <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr))$coef[2,4]
           } else {
-          p2 <- summary(glm(as.formula(paste("y ~ g +", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr))$coef[2,4]          
+          p2 <- summary(glm(as.formula(paste("y ~ g +", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr))$coef[2,4]
                     }
           pval <- p2
           names(pval) <- "model 1 (males)"
 
         } else if (sum(SEX==0,na.rm=TRUE) == sum(!is.na(SEX))) {
           warning("Only Females detected")
-        	if (!CC_study){       
+        	if (!CC_study){
 		p1 <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr))$coef[2,4]
 		} else {
 		p1 <- summary(glm(as.formula(paste("y ~ g +", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr))$coef[2,4]
@@ -622,7 +621,7 @@ if (length(table(geno_one_use))==1) {
            ## heterzygote in females only
           datafr$gD <- ifelse(datafr$g==1 & datafr$sex == 0, 1, 0)
 
-       		if (!CC_study){       
+       		if (!CC_study){
             p1 <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr[datafr$sex==0,])[grepl("covar",names(datafr[datafr$sex==0,]))], collapse = "+"))), data=datafr[datafr$sex==0,]))$coef[2,4]
             p2 <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr[datafr$sex==1,])[grepl("covar",names(datafr[datafr$sex==1,]))], collapse = "+"))), data=datafr[datafr$sex==1,]))$coef[2,4]
             m1 <- lm(as.formula(paste("y ~ sex+g+gD+g:sex + ", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr)
@@ -658,7 +657,7 @@ if (length(table(geno_one_use))==1) {
             ## imputed: but in dosage values (models 1,2 only)
             if (is.null(dim(geno_one))){
 
-       		if (!CC_study){       
+       		if (!CC_study){
               p1 <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr[datafr$sex==0,])[grepl("covar",names(datafr[datafr$sex==0,]))], collapse = "+"))), data=datafr[datafr$sex==0,]))$coef[2,4]
               p2 <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr[datafr$sex==1,])[grepl("covar",names(datafr[datafr$sex==1,]))], collapse = "+"))), data=datafr[datafr$sex==1,]))$coef[2,4]
               m11 <- lm(as.formula(paste("y ~ sex+g+g:sex + ", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr)
@@ -669,8 +668,8 @@ if (length(table(geno_one_use))==1) {
               p2 <- summary(glm(as.formula(paste("y ~ g +", paste(names(datafr[datafr$sex==1,])[grepl("covar",names(datafr[datafr$sex==1,]))], collapse = "+"))), data=datafr[datafr$sex==1,]))$coef[2,4]
               m11 <- glm(as.formula(paste("y ~ sex+g+g:sex + ", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr)
               m2 <- glm(as.formula(paste("y ~ sex + ", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr)
-              p_val_01 <- anova(m11, m2, test = "Rao")[2,6]             	
-              	
+              p_val_01 <- anova(m11, m2, test = "Rao")[2,6]
+
               }
 
               pval_Xchr <-c(p1, p2, p_val_01)
@@ -695,7 +694,7 @@ if (length(table(geno_one_use))==1) {
               use_dat <- complete.cases(geno_one_use, SEX, Y, geno_one, COVAR)
               datafr <- data.frame("y" = Y[use_dat], "g" = geno_one_use[use_dat], "g1" = geno_one[use_dat, 2], "g2" = geno_one[use_dat, 3], "sex" =  SEX[use_dat], "covar" = COVAR[use_dat])
 
-       		if (!CC_study){       
+       		if (!CC_study){
              p1 <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr[datafr$sex==0,])[grepl("covar",names(datafr[datafr$sex==0,]))], collapse = "+"))), data=datafr[datafr$sex==0,]))$coef[2,4]
               p2 <- summary(lm(as.formula(paste("y ~ g +", paste(names(datafr[datafr$sex==1,])[grepl("covar",names(datafr[datafr$sex==1,]))], collapse = "+"))), data=datafr[datafr$sex==1,]))$coef[2,4]
               m11 <- lm(as.formula(paste("y ~ sex+g+g:sex + ", paste(names(datafr)[grepl("covar",names(datafr))], collapse = "+"))), data=datafr)

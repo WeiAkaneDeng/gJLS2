@@ -14,6 +14,7 @@ locReg(
   transformed = FALSE,
   related = FALSE,
   cov.structure = "corCompSymm",
+  r2 = 0,
   clust = NULL,
   nCores = 1
 )
@@ -21,7 +22,7 @@ locReg(
 \arguments{
 \item{GENO}{a list of a genotype matrix/vector of SNPs, must contain values 0, 1, 2's coded for the number of reference allele. Alternatively, for imputed genotypes, it could either be a vector of dosage values between 0 and 2, or a list of matrix of genotype probabilities, numerically between 0 and 1 for each genotype. The length/dimension of \code{GENO} should match that of \code{Y}, and/or \code{SEX} and \code{COVAR}.}
 
-\item{Y}{a numeric vector of quantitative trait, such as human height.}
+\item{Y}{a numeric vector of quantitative trait, such as human height; or a vector of integers for a binary outcome.}
 
 \item{SEX}{the genetic sex of individuals in the sample population, must be a vector of 1's and 2's following PLINK default coding, where males are coded as 1 and females 2. \strong{Optional for analysis of autosomal SNPs, but required for X-chromosome.}}
 
@@ -40,6 +41,8 @@ model 3 (recommended): Y~G+G_D+S+GxSex; with p-value given by comparing Y ~ G+G_
 \item{related}{optional: a logical indicating whether the samples should be treated as related; if \code{TRUE} while no relatedness covariance information is given, it is then estimated under a \code{cov.structure} and assumes this structure among all within-group errors pertaining to the same pair/cluster if specified using \code{clust}. This option currently only applies to autosomal SNPs.}
 
 \item{cov.structure}{optional: should be one of standard classes of correlation structures listed in \code{corClasses} from \pkg{R} package \pkg{nlme}. See \code{?corClasses}. The most commonly used option is \code{corCompSymm} for a compound symmetric correlation structure. This option currently only applies to autosomal SNPs.}
+
+\item{r2}{optional: the correlation should be a numeric between -1 and 1 to be used as input for \code{corClasses} from \pkg{R} package \pkg{nlme}. See \code{?corClasses}. This option currently only applies to autosomal SNPs.}
 
 \item{clust}{optional: a factor indicating the grouping of samples; it should have at least two distinct values. It could be the family ID (FID) for family studies. This option currently only applies to autosomal SNPs.}
 
