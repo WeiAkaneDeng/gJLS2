@@ -1,0 +1,156 @@
+---
+title: "Welcome to STA248H1 - Statistics for Computer Scientists"
+---
+
+**A possible 2% bonus**: the majority of the class voted for a 2% bonus mark in class today. This is granted based on completion of either all TRUE/FALSE questions (with justifications or counter examples), five short answer questions (1-5, 6-10, etc, 20-25), three derivations (1-3 or 4-6) or one of the five problems by **Monday August 13th @6pm**. 
+
++ **Question 3 of the five problems will not be counted towards the 2% bonus**.
+
++ **Question 2** did not give a sample size, you can calculate a sample size based on when the 95% CI covers the null hypothesis parameter value, and claim that above this value, there is evidence to reject at 5% significance while below this value you fail to reject.
+
++ You can find the questions from lecture 9 slides.
+
++ You will get feedback on your solutions, and 2% will be granted once the solutions are deemed satisfactory.
+
++ You may try as many times as necessary to achieve a satisfactory completion.
+
++ I will mark similarly to midterm/final exam for derivations and problem so you can get an idea of how part marks are given.
+
++ By submitting solutions to me, you acknowledge and give permission to me to share your solution (anonymously) to the entire class.
+
+
+
+**A slack group has been made for this class, you are welcome to join and discuss with each other** https://join.slack.com/t/sta248-2018-summer/shared_invite/enQtNDA1MzY3MDQ5ODU3LTMwNGM3ZTY4ZDBkZDQ2NWJiOGU3YmZiZDJkNTU5MmExOTkzZjE0MDNiN2M3YmU0MzY2OTRlMjljYTIxNDE0Njg or the shorten version: https://goo.gl/4UQms5
+
+
+### Course Instructor: 
++ [Wei Q. Deng](wei.deng@mail.utoronto.ca)
++ Office hours: Monday 4-6pm, Wednesday 4-6pm (from second week)
++ Office hour location: SS623B (TA office in the basement of Sidney Smith - starting July 9th)
+
+
+### Final exam
++ Date: **August 17th**
++ Duration: 9am-12pm
++ Location: **EX200**
++ If you want information (no concept nor definitions) included on the final exam information sheet, please email me between July 24th (after midterm) and July 28th, and I will try to accommodate.  
++ Review lecture: August 13th 6-9pm, please bring your questions to class and be prepared to work.
++ Extra office hours: 
+    - August 13th, 2-6pm (SS623B);
+    - **Cancelled: August 16th, 9am-11am and 12pm-2pm (SS623B)**;
+    - **TA office hour August 16th 11am-12pm (SS623B)**
++ The first and last a few pages of the final exam is [here](https://weiakanedeng.github.io/STA248_UT2018Summer/STA248Final_ExamFrontBack.pdf)
+
+
+### Lecture Slides
+
++ [lecture 9](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture9_sol.pdf) (August 13th) is a review lecture of all topics covered. Please try as many questions as you can and bring any questions to the class.
+
+    - Partial solution + hints can be found [here](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture9_sol_MondayGood.pdf). **Note for the one-sided interval the signs and the size of the interval are now updated.**
+
++ [lecture 8](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture8.pdf) (August 8th) covers the introduction to linear regression with a little bit of theory in connection to hypothesis testing as well as confidence intervals. 
+
+    - Relevant readings from OpenIntro is Chapter 7; alternatively you can look at Chapter 12 of *Probability and Statistics for Engineering and the Sciences*.
+
+
++ [lecture 7](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture7.pdf) covers the introduction to linear regression with connection to supervised learning and examples. The lecture will take 2 hours and covered by your TA Tianle.
+
+    - The python notebook files are [here](https://weiakanedeng.github.io/STA248_UT2018Summer/linear_regression.ipynb) and [here](https://weiakanedeng.github.io/STA248_UT2018Summer/linear_regression2.ipynb).
+    - Relevant readings from OpenIntro is Chapter 7; alternatively you can look at Chapter 12 of *Probability and Statistics for Engineering and the Sciences*.
+
++ Today's lecture will be a review of midterm solutions (Q3-Q5). Solutions will **NOT** be posted. You can pick up the midterm from your TA Tianle who will be covering for me Monday. 
+
+    - Tests written in pencil will not be remarked after the midterm review. 
+    - If you plan to request a remark, please write a brief justification for why you deserve the marks. 
+    - Any request for a remark should be send to me via email by **August 5th**.
+
++ [lecture 6](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture6.pdf) and the rmarkdown file [here](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture6.Rmd) cover the remaining topics in hypothesis testing such as power and type I and II error, as well as some simulation examples. We also reviewed the first two questions on the midterm.
+
+    - Note the change on slide page 36 (power calculation for t-test will not be on the final exam).
+    - Relevant readings from OpenIntro are Chapters 4.3, 5.4, and 5.5; alternatively you can look at Chapter 8 of *Probability and Statistics for Engineering and the Sciences*.
+
+
++ [lecture 5](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture5_sol.pdf) contains a quick review of topics learnt so far and partial solution to some of the questions.
+
+    - Relevant readings from OpenIntro are Chapters 4 and 5; alternatively you can look at Chapters 7, 8, 9 of *Probability and Statistics for Engineering and the Sciences*.
+    - Typo on page 38, Step 2: the second equality has the inequality sign reversed, i.e. $>$ instead of $<$ because of multiplying each side by $-1$.
+    
++ [lecture 4](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture4.pdf) and rmarkdown document to generate the slides can be found [here](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture4.Rmd) for you to look at the R/Python code chunks. 
+
+    - **There was a typo on slide page 32 for the two-sided test p-value, which has been corrected so it is now consistent with slide page 35.** 
+    - **There was a typo on slide page 31 for the one-sample proportion test, the proportion in the denominator should be $p$ instead of $\hat{p}$, i.e. taking the parameter value specified by the null hypothesis. The version with the $\hat{p}$ in the denominator is used when we calculate confidence interval without any known parameter value. **
+
+    - Relevant readings from OpenIntro are Chapters 4 and 5; alternatively you can look at Chapters 7, 8, 9 of *Probability and Statistics for Engineering and the Sciences*.
+
+    
++ [lecture 3](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture3.pdf) and rmarkdown document to generate the slides can be found [here](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture3.Rmd) for you to look at the R/Python code chunks. 
+
+    - Relevant readings from OpenIntro are Chapter 4, specifically 4.1-4.3, and 4.5; alternatively you can look at Chapters 7, 8, 9 of *Probability and Statistics for Engineering and the Sciences*.
+
+
++ [lecture 2](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture2.pdf) and rmarkdown document to generate the slides can be found [here](https://weiakanedeng.github.io/STA248_UT2018Summer/Lecture2.Rmd) for you to look at the R/Python code chunks. 
+
+    - To practice what you learnt, make sure you know each of the concepts introduced as well as being able to solve the examples and exercises on the lecture slides. 
+    - Relevant readings from *OpenIntro* are Chapters 2, 3 (review for STA247) and 4.4; alternatively you can look at Chapters 2-4 (review for ST247) and Chapters 5 and 6 of *Probability and Statistics for Engineering and the Sciences*.
+    - You can also refer to your slides or textbook from STA247 if you need a refresher on concepts such as expectation, variance and moment generating functions.
+    
+    
+    
++ [lecture 1](https://weiakanedeng.github.io/STA248_UT2018Summer/lec1.pdf) and rmarkdown document to generate the slides can be found [here](https://weiakanedeng.github.io/STA248_UT2018Summer/lec1.Rmd) for you to look at the code chunks **slide page 40 has been updated to reflect a more accurate depiction of a left skewed distribution**. 
+
+    - To practice what you learnt in Lecture 1, you can explore the car [dataset](https://weiakanedeng.github.io/STA248_UT2018Summer/Cars93.csv) (data description [here](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Cars93.html)). For each variable, generate what you think is the best graphical and numerical summaries. You should be able to defend your choices using the material from the lecture slides.
+    - Relevant reading material from the *OpenIntro* Chapter 1; alternatively you can look at Chapter 1 of *Probability and Statistics for Engineering and the Sciences*.
+
+
+### R and Python programming resources
+
++ R
+
+    - [R cookbook](http://www.cookbook-r.com)
+    - [R intro from Cran](https://cran.r-project.org/doc/manuals/R-intro.pdf)
+    - [Quick R](https://www.statmethods.net/index.html)
+
++ Python
+
+    - [statistical analyses](http://scikit-learn.org/stable/auto_examples/index.html)
+    - [pydataframe](https://code.google.com/archive/p/pydataframe/)
+    - [NumPy](http://scipy.org/Cookbook) and [Scipy](http://www.scipy-lectures.org)
+
+
+### DataCamp 
+
+You can take a look at [DataCamp](https://www.datacamp.com). The invitation link has been sent out, if you have not received, please let me know. 
+
+For students using R, you should complete one of the intro stats modules and one data visualization modules:
+
++ Intro to Statistics with R: Analysis of Variance (ANOVA)
++ Intro to Statistics with R: Student's T-test
++ Data Visualization with ggplot2 (Part 1)
++ Data Visualization with ggplot2 (Part 2)
+
+For students using Python, you should complete one of the intro stats modules and one data visualization modules:
+
++ Statistical Thinking in Python (Part 2)
++ Introduction to Data Visualization with Python
+
+I have added additional modules that you might find helpful to get you started, but you will not be marked based on those. 
+
+The deadline for the completion of two modules is set for **August 5th**.
+
+You can still complete the modules after August 6th - for each additional day after the due date, a 10% penalty will be applied.
+
+
+### Midterm date
++ Date: **July 23rd** 
++ Duration: 18:00-21:00
++ Location: **EX300 and EX310**
++ Due to the high demand for it, [here](https://weiakanedeng.github.io/STA248_UT2018Summer/formula_page.pdf) is the first page and last a few pages of the midterm (a.k.a ``formula'' pages).
++ For those of you who missed the midterm due to legitimate reason, please check the faculty's policies regarding a missed test/exam [here](http://www.artsci.utoronto.ca/current/petitions/common) and [here](http://calendar.artsci.utoronto.ca/Rules_&_Regulations.html#Appeals%20and%20Petitions). Once your absence has been justified, your final exam will count towards 90% of your final grade.
++ **Midterm marks are now up on portal**
++ The class average is 46 and class median is 50.5. [Here](https://weiakanedeng.github.io/STA248_UT2018Summer/FakeMarks.png.pdf) is a parametric bootstrap inspired distribution of a hypothetical class marks assuming the marks are normally distributed and the parameters were estimated from the actual marks.
+
+
+### Class schedule
++ Monday 18:00-21:00 in SS 2118 (no lecture on August 6, Civic holiday)
++ Wednesday 18:00-21:00 in SS 2118.
+
