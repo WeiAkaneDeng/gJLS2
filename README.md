@@ -1,10 +1,10 @@
 # gJLS2 Overview
 
-A joint analysis of location-scale (JLS) can be a powerful tool in genome-wide association studies to uncover previously overlooked markers that influence the quantitative traits through both mean and variance (Soave et al., 2015; AJHG). The gJLS2 package offers updated software support to the existing gJLS <https://github.com/dsoave/gJLS/>), which was developed to deal specifically with sample correlation and group uncertainty (Soave and Sun, 2017; Biometrics). Although the work was originally motivated by genetic association studies, application of the proposed method, however, is not limited to this type of data. The gJLS testing framework is useful for other scientific studies where location and scale parameters are both of interest. 
+A joint analysis of location-scale (JLS) can be a powerful tool in genome-wide association studies to uncover previously overlooked markers that influence the quantitative traits through both mean and variance (Soave et al., 2015; AJHG). The gJLS2 package offers updated software support to the existing [gJLS](https://github.com/dsoave/gJLS/), which was developed to deal specifically with sample correlation and group uncertainty (Soave and Sun, 2017; Biometrics). Although the work was originally motivated by genetic association studies, application of the proposed method, however, is not limited to this type of data. The gJLS testing framework is useful for other scientific studies where location and scale parameters are both of interest. 
 
 The current gJLS2, as a unifying software package to gJLS, can additionally handle analyses of X-chromosomes through the recently available association testing methods for location (Chen et al., 2020; *Biostatistics*) and scale (Deng et al., 2019; *Genetic Epidemiology*). The package offers a convenient **PLINK R-plugin** script and a command-line **Rscript** for non-GUI usage. 
 
-For details of the manual, please visit (https://weiakanedeng.github.io/gJLS2/). It is our hope that this software package will encourage the analyses and sharing of scale and gJLS p-values.
+For details of the manual, please visit <https://weiakanedeng.github.io/gJLS2/>. It is our hope that this software package will encourage the analyses and sharing of scale and gJLS p-values.
 
 
 ## Quick start
