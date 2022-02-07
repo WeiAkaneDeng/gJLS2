@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>nonGUI - gJLS2</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "nonGUI";
+    var mkdocs_page_input_path = "nonGUI.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> gJLS2</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../GUI/">GUI</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">nonGUI</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#plink-and-an-r-plugin-function">PLINK and an R plugin function</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#rscript">Rscript</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../UserScenarios/">Scenarios</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">gJLS2</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>nonGUI</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="using-plink-r-plugin-and-r-scripts">Using PLINK R Plugin and R scripts</h1>
+<p>Considering the computational and memory requirement of genome-wide data, the package offers two possible approaches for running the gJLS analyses: 1) using the stand-alone package in R environment (GUI or as a command-line program through \texttt{Rscript}), or 2) using the genetic software PLINK via an R plugin function.</p>
+<p>In general, we recommend the users to divide the genotype data by chromosome and maybe take advantage of parallel computing when using a server with multiple cores or processors.</p>
+<h2 id="plink-and-an-r-plugin-function">PLINK and an R plugin function</h2>
+<p>We illustrate gJLS analyses using simulated phenotype, covariates, and real X-chromosome genotypes from 1000 Genomes Project via a simple yet adaptable R plugin function; the function can be easily modified to suit the user's needs. </p>
+<p>Before we start, we have to make sure both \package{gJLS2} and \package{Rserve} packages are installed. More details on the R plugin function can be found <a href="https://www.cog-genomics.org/plink/1.9/rserve">here</a>. In some cases, the default port does not work and you can specify a port number when starting \package{Rserve} and in PLINK. </p>
+<p>The following R plugin script is quite simple since the majority of the coding is now nested in the gJLS2 function. Notice that for X-chromosome, the genetic sex must be provided and this is done through setting the first column of the covariate file to be the sex variable. To run PLINK R plugin function, save this coding chunk into an R script and give it a name, such as 'run_gJLS2PLINK_Xchr.R'.</p>
+<pre><code>Rplink &lt;- function(PHENO,GENO,CLUSTER,COVAR){
+ require(gJLS2)
+
+  f1 &lt;- function(s) 
+       {    
+      r &lt;-  gJLS2(GENO=s, SEX=COVAR[,1], Y=PHENO, COVAR=COVAR[,-1], Xchr=TRUE, genotypic=TRUE)
+      rr &lt;- as.numeric(r[3:5])
+
+      c( length(rr) , rr )
+       }
+      apply( GENO , 2 , f1 )
+
+}
+</code></pre>
+<p>Notice that the first variable in the PLINK <em>COVAR</em> term is in fact the sex variable, taken from the .fam file. So please be sure to check if sex information is correctly stored in .fam file prior to this analysis.</p>
+<p>The remaining step is done in the bash command line by calling PLINK and you can test the script with the files extracted from the file <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/input.zip">here</a>.</p>
+<pre><code>R CMD Rserve --RS-port 8221 --no-save
+
+plink --bfile ./input/chrX_5_snp \
+--R run_gJLS2PLINK_Xchr.R \
+--pheno ./input/Pheno.txt \
+--pheno-name pheno1 \
+--R-port 8221 \
+--covar ./input/Pheno.txt \
+--covar-name SEX,covar1,covar2,covar3 \
+--out ./output/testRun
+</code></pre>
+<p>The PLINK has an option to debug the script when necessary, it can be done on a subset of the data using the following:</p>
+<pre><code class="language-bash">plink --bfile ./input/chrX_5_snp \
+--R run_gJLS2PLINK_Xchr.R \
+--R-debug \
+--pheno ./input/Pheno.txt \
+--pheno-name pheno1 \
+--R-port 8221 \
+--covar ./input/Pheno.txt \
+--covar-name SEX,covar1,covar2,covar3 \
+--out ./output/testRun
+</code></pre>
+<p>This generates a <em>testRun.debug.R</em> file in which the data needed for the analysis are stored, and the user can proceed to debug in R:</p>
+<pre><code>source(&quot;testRun.debug.R&quot;)
+require(gJLS2)
+
+  f1 &lt;- function(s) 
+       {    
+      r &lt;-  gJLS2(GENO=s, SEX=ifelse(COVAR[,1]==0, 2, COVAR[,1]), Y=PHENO, COVAR=COVAR[,-1], Xchr=TRUE)
+      rr &lt;- as.numeric(r[3:5])
+
+      c( length(rr) , rr )
+       }
+apply(GENO , 2 , f1)
+</code></pre>
+<p>This option has the flexibility to perform data filtering via PLINK, but sometimes setting up <em>Rserve</em> to communicate with PLINK properly could be a problem on some servers. We recommend running this analysis by either chromosome or smaller units when sample sizes become large as the R <em>apply()</em> function supported by PLINK is not the most efficient. There is a risk of losing the results if the analyese were not fully completed on <em>GENO</em> due to external factors, such as power loss or server downtime.</p>
+<p>To have better write control over larger analyses, we recommend using the Rscript option below.</p>
+<h2 id="rscript">Rscript</h2>
+<p>The Rscript <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2.R">run_gJLS2.R</a> in the extdata folder can serve as a starting point to customized the analyses for each user. The arguments available in this Rscript included the very basic ones and additional ones can be added easily. A useful option is "write", where the user can specify the chunk size for results to be written in the file as the program runs. Another important feature is the "-nThreads" option, where the user can take advantage of the multiple cores and processors available from high performance computing clusters.</p>
+<p>As an example, in the extdata directory, the Rscript can be executed on the command line and output the results:</p>
+<pre><code class="language-bash">Rscript run_gJLS2.R --bfile ./input/chrX_5_snp \
+--pfile ./input/Pheno.txt \
+--pheno pheno1 \
+--Xchr TRUE \
+--nThreads 2 \
+--covar SEX,covar1,covar2,covar3 \
+--out ./output/testRun.results.txt
+</code></pre>
+<p>Alternatively, summary statistics can also be analyzed using the command-line option:</p>
+<pre><code class="language-bash">Rscript run_gJLS2.R --sumfile ./input/GIANT_BMI_chr16_gJLS_summary.txt \
+--out ./output/GIANT_BMI_Sum.chr16_results.txt &amp;
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../UserScenarios/" class="btn btn-neutral float-right" title="Scenarios">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../GUI/" class="btn btn-neutral" title="GUI"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../GUI/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../UserScenarios/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
