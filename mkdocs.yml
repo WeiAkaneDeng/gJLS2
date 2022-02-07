@@ -1,7 +1,0 @@
-site_name: gJLS2
-nav:
-   - Home: index.md
-   - GUI: GUI.md
-   - nonGUI: nonGUI.md 
-   - Scenarios: UserScenarios.md
-theme: readthedocs
