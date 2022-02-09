@@ -119,8 +119,10 @@
 </ul>
 <p>Ignoring any of the above could bring a flood of problems for inference and/or estimation of genetic effects. Our proposed approach addresses the correct inference, but the unbiased estimation of effects remains an open question. </p>
 <p>This 3 d.f. test resolves above issues simultaneously from a testing perspective (Chen et al., 2021):</p>
-<p>$$g(E(Y))=\beta_0+\beta_S Sex+\beta_{A} G_{Additive}+\beta_{D} G_{Dominance} + \beta_{GS} G\times Sex,$$
-$$H_0: \beta_A=\beta_D=\beta_{GS}=0.$$</p>
+<p>
+<script type="math/tex; mode=display">g(E(Y))=\beta_0+\beta_S Sex+\beta_{A} G_{Additive}+\beta_{D} G_{Dominance} + \beta_{GS} G\times Sex,</script>
+<script type="math/tex; mode=display">H_0: \beta_A=\beta_D=\beta_{GS}=0.</script>
+</p>
 <p>Essentially, with this model, we are free to code the $G_A$ whichever way, and the association testing results will be the same! At the same time, we have shown the statistical equivalence between</p>
 <ul>
 <li>XCI uncertainty = $G\times Sex$</li>
@@ -130,28 +132,30 @@ $$H_0: \beta_A=\beta_D=\beta_{GS}=0.$$</p>
 <h2 id="x-chromosome-scale-variance-association">X-chromosome Scale (variance) association</h2>
 <p>The solution here is essentially a model-based generalized Levene's test, where additional covariates and the confounding sex (S) variable can be modelled explicitly. The general framework of the approach implies a two-step regression on the genotype (G), and if additional covariates are included, they must be present in both steps:</p>
 <p><strong>Stage One: Mean models</strong>
-$$
+<script type="math/tex; mode=display">
 Y \sim \beta_0 + \beta_{G}G + \beta_{S} S + \beta_{GS}GS
-$$</p>
+</script>
+</p>
 <p><strong>Stage Two: Variance models</strong>
-$$
-Z<em> \sim \gamma_0 + \gamma_{G}G + \gamma_{S}S + \gamma_{GS}GS,
-$$
-where $Z^{</em>}$ is the weighted absolute residual.</p>
+<script type="math/tex; mode=display">
+Z* \sim \gamma_0 + \gamma_{G}G + \gamma_{S}S + \gamma_{GS}GS,
+</script>
+where $Z^{*}$ is the weighted absolute residual.</p>
 <p>Let $Z = |Y - \hat{Y}|$ be the different between the observed and fitted values with respect to the <em>Mean</em> model. The weighted residual is:
-[
-z^{*} = \frac{z}{1_{(S=0)}\hat{\sigma}<em>\text{F} + 1</em>{(S=1)}\hat{\sigma}<em>\text{M}},
-]
-where $\hat{\sigma}</em>\text{F}$ and $\hat{\sigma}_\text{M}$ denote the sample standard deviations of $y$ in females and males, respectively.</p>
+<script type="math/tex; mode=display">
+z^{*} = \frac{z}{1_{(S=0)}\hat{\sigma}_\text{F} + 1_{(S=1)}\hat{\sigma}_\text{M}},
+</script>
+where $\hat{\sigma}<em>\text{F}$ and $\hat{\sigma}</em>\text{M}$ denote the sample standard deviations of $y$ in females and males, respectively.</p>
 <p>Note that a non-additive variance model (NAV) in stage two may also be considered to capture non-linear variance effects (via the <em>genotypic</em> option):
-$$
+<script type="math/tex; mode=display">
 Z* \sim \gamma_0 + \gamma_{G1}G1 + \gamma_{G2} G2 + \gamma_{S}S + \gamma_{G1S}G1S
-$$</p>
+</script>
+</p>
 <p>where $G1$ and $G2$ are indicator variables for the Bb and BB+B groups under X-inactivation, respectively, or alternatively for the Bb+B and BB groups without X-inactivation.</p>
 <p>Test for <em>Variance</em> heterogeneity is achieved in stage two by testing 
-[
+<script type="math/tex; mode=display">
 H_o: \gamma_{G}= \gamma_{GS} = 0 \quad \text{or} \gamma_{G1} =\gamma_{G2}= \gamma_{G1S}= 0
-]
+</script>
 via the standard regression $F$-test, where the model is fitted using an OLS for independent samples or a generalized least square for dependent samples. </p>
 <h2 id="references">References:</h2>
 <ul>
@@ -211,6 +215,8 @@ via the standard regression $F$-test, where the model is fitted using an OLS for
     <script>var base_url = '..';</script>
     <script src="../js/theme_extra.js" defer></script>
     <script src="../js/theme.js" defer></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" defer></script>
+      <script src="../assets/mathjaxhelper.js" defer></script>
       <script src="../search/main.js" defer></script>
     <script defer>
         window.onload = function () {
