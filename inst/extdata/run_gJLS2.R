@@ -28,8 +28,8 @@ option_list = list(
   make_option(c("-n", "--nThreads"), type="integer", default="1", 
               help="number of Threads used", metavar="integer"),
   make_option(c("-a", "--analysis"), type="integer", default="2", 
-              help="location (0), scale (1), 
-              or joint-location-scale analysis (2)", metavar="integer"),
+              help="location (0), scale (1), or joint-location-scale analysis (2)", 
+              metavar="integer"),
   make_option(c("-w", "--write"), type="integer", default= 50, 
               help="chunk size to write in output file; /n
                     default is 50 lines", metavar="integer"),
@@ -48,12 +48,11 @@ args <- arguments$args
 
 nThread <- opt$nThreads
 if (nThread > 1){
-if("RcppParallel" %in% rownames(installed.packages()) == FALSE) {
-cat("RcppParallel not installed, trying to intall now ...")
-install.packages("RcppParallel", repos='http://cran.us.r-project.org')
+if("parallel" %in% rownames(installed.packages()) == FALSE) {
+cat("parallel not installed, trying to intall now ...")
+install.packages("parallel", repos='http://cran.us.r-project.org')
 }
-library(RcppParallel)	
-setThreadOptions(numThreads = nThread)
+library(parallel)	
 }
 
 if (is.null(opt$sumfile)){
@@ -72,8 +71,8 @@ centre <- opt$center;
 cat(paste("Using center option", centre, "\n"))
 genotypic <- opt$genotypic
 cat(paste("Using genotypic option", genotypic, "\n"))
-transform <- opt$transform
-cat(paste("Using transform option", transform, "\n"))
+transformY <- opt$transform
+cat(paste("Using transform option", transformY, "\n"))
 xchr <- opt$Xchr
 cat(paste("Using Xchr option", xchr, "\n"))
 out <- opt$out
@@ -88,7 +87,7 @@ library("devtools")
 devtools::install_github("WeiAkaneDeng/gJLS2")
 }
 
-require("gJLS2")
+library("gJLS2")
 
 ## checking pheno file
 
@@ -131,14 +130,13 @@ if (sum(grepl("sex|SEX|Sex", covarNames)) > 0){
 
 cat(paste("Covariates include", covarNames, " from covariate/pheno file \n"))
 
-} else {
+} else{
 
 	SEX_cov <- pheno_dat$SEX
 	SEX_cov_PLINK <- ifelse(SEX_cov==0, 2, SEX_cov)
 	covarNames_use <- covarNames
 
 cat(paste("Covariates did not include SEX, taking SEX from .fam file\n"))
-
 }
 
 cat(paste("Writing results to output", out, "\n"))
@@ -148,14 +146,15 @@ cat(paste("Writing results to output", out, "\n"))
 iter <- round(dim(geno_dat)[2]/chunk_size)
 
 if (runA == 0) {
-final_output <- locReg(GENO = geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transform)
+final_output <- locReg(GENO = geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transformY)
 	
 } else if (runA == 1) {
-final_output <- scaleReg(GENO = geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transform, genotypic = genotypic, centre = centre)
+final_output <- scaleReg(GENO = geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 	
 } else {
-final_output <- gJLS2(GENO = geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transform, genotypic = genotypic, centre = centre)
+final_output <- gJLS2(GENO = geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
+
 write.table(final_output, file = out, col.names=T, row.names=F, quote=F, sep="\t")
 
 if (iter > 1) {
@@ -167,22 +166,22 @@ for (j in 2:iter){
 if (j == iter){
 	
 if (runA == 0) {	
-final_output <- locReg(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transform)
+final_output <- locReg(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transformY)
 } else if (runA == 1) {
-final_output <- scaleReg(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transform, genotypic = genotypic, centre = centre)
+final_output <- scaleReg(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 } else {
-final_output <- gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transform, genotypic = genotypic, centre = centre)
+final_output <- gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores=nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
 
 write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 
 } else {	
 if (runA == 0) {	
-final_output <- locReg(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores= nThread, transformed = transform)
+final_output <- locReg(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores= nThread, transformed = transformY)
 } else if (runA == 1) {
-final_output <- scaleReg(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores= nThread, transformed = transform, genotypic = genotypic, centre = centre)
+final_output <- scaleReg(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 } else {
-final_output <- gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores= nThread, transformed = transform, genotypic = genotypic, centre = centre)
+final_output <- gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
 write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 }
@@ -196,11 +195,11 @@ cat(paste("Writing results to output", out, "\n"))
 iter <- round(dim(geno_dat)[2]/chunk_size)
 
 if (runA == 0) {	
-write.table(locReg(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform), file = out, col.names=T, row.names=F, quote=F, sep="\t")
+write.table(locReg(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY), file = out, col.names=T, row.names=F, quote=F, sep="\t")
 } else if (runA == 1) {
-write.table(scaleReg(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform, genotypic = genotypic, centre = centre), file = out, col.names=T, row.names=F, quote=F, sep="\t")
+write.table(scaleReg(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre), file = out, col.names=T, row.names=F, quote=F, sep="\t")
 } else {
-write.table(gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform, genotypic = genotypic, centre = centre), file = out, col.names=T, row.names=F, quote=F, sep="\t")
+write.table(gJLS2(GENO = geno_dat[,(1):(chunk_size)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre), file = out, col.names=T, row.names=F, quote=F, sep="\t")
 }
 
 if (iter > 1) {
@@ -212,21 +211,21 @@ for (j in 2:iter){
 if (j == iter){
 	
 if (runA == 0) {	
-write.table(locReg(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
+write.table(locReg(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 } else if (runA == 1) {
-write.table(scaleReg(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform, genotypic = genotypic, centre = centre), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
+write.table(scaleReg(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 } else {
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform, genotypic = genotypic, centre = centre), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
+write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(iter-1)):dim(geno_dat)[2]], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 }
 
 	} else {	
 
 if (runA == 0) {	
-write.table(locReg(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
+write.table(locReg(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 } else if (runA == 1) {
-write.table(scaleReg(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform, genotypic = genotypic, centre = centre), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
+write.table(scaleReg(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 } else {
-write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transform, genotypic = genotypic, centre = centre), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
+write.table(gJLS2(GENO = geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre), file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 }
 		}	
 	}
