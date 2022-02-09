@@ -64,10 +64,16 @@
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#whats-new">What's new</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#contact">Contact</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#contact">Contact</a>
+        </ul>
     </li>
     </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="Methods/">Method</a>
                     </li>
                 </ul>
                 <ul>
@@ -118,8 +124,7 @@
                 <h1 id="gjls2-a-generalized-joint-location-and-scale-framework-for-association-testing">gJLS2: A Generalized Joint Location and Scale Framework for Association Testing</h1>
 <h2 id="overview">Overview</h2>
 <p>A joint analysis of location-scale (JLS) can be a powerful tool in genome-wide association studies to uncover previously overlooked markers that influence the quantitative traits through both mean and variance (Soave et al., 2015; <em>AJHG</em>). The gJLS2 package offers updated software support to previous versions <a href="https://github.com/dsoave/JLS">JLS</a> and <a href="https://github.com/dsoave/gJLS">gJLS</a>, which were developed to deal specifically with sample correlation and group uncertainty (Soave and Sun, 2017; <em>Biometrics</em>). Although the work was originally motivated by genetic association studies, application of the proposed method, however, is not limited to this type of data. The JLS testing framework is useful for other scientific studies where location and scale parameters are both of interest.</p>
-<p>The current gJLS2 can additionally handle analyses of X-chromosomes through the recently available association testing methods for location (Chen et al., 2021; <em>Genetic Epidemiology</em>) and scale (Deng et al., 2019; <em>Genetic Epidemiology</em>). </p>
-<p>The full implementation is discussed and demonstrated in the R <a href="GUI/">GUI environment</a> and is suitable for smaller analysis on personal computers. For larger analyses, the package offers a convenient PLINK R-plugin script and a command-line Rscript for <a href="nonGUI/">non-GUI usage</a>.</p>
+<p>The current gJLS2 can additionally handle analyses of X-chromosomes through the recently available association testing methods for location (Chen et al., 2021; <em>Genetic Epidemiology</em>) and scale (Deng et al., 2019; <em>Genetic Epidemiology</em>). The package offers a convenient PLINK R-plugin script and a command-line Rscript for non-GUI usage, available <a href="https://github.com/WeiAkaneDeng/gJLS2/tree/main/inst/extdata">here</a>.</p>
 <h2 id="citation"><strong>Citation</strong></h2>
 <p>For X-chromosome <strong>location</strong> association analysis, please cite:</p>
 <ul>
@@ -129,7 +134,7 @@
 <ul>
 <li>Deng et al. (2019). <em>Genetic Epidemiology</em>. <a href="https://pubmed.ncbi.nlm.nih.gov/31332826/">Analytical strategies to include the X-chromosome in variance heterogeneity analyses: Evidence for trait-specific polygenic variance structure</a>. </li>
 </ul>
-<p>For the gJLS2 R package software, please cite:</p>
+<p>For the <em>gJLS2</em> R package software, please cite:</p>
 <ul>
 <li>Deng WQ, Sun L. (2021). <a href="https://www.biorxiv.org/content/10.1101/2021.10.11.463951v2">gJLS2: An R package for generalized joint location and scale analysis in X-inclusive genome-wide association
 studies.</a> <em>bioRxiv</em> 2021.10.11.463951; </li>
@@ -140,7 +145,7 @@ studies.</a> <em>bioRxiv</em> 2021.10.11.463951; </li>
 <pre><code>data(&quot;chrXdat&quot;)
 head(chrXdat)
 </code></pre>
-<p>The PLINK binary version of the example data can be found on the github site <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/input.zip">here</a>. The zip file contains the PLINK binary genotype of 5 Xchr markers and simulated phenotypes; as well as summary statistics for height and bmi extracted from the GIANT consortium for chromosome 16. </p>
+<p>The PLINK binary version of the example data can be found on the github site <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/input.zip">here</a>. The zip file contains the PLINK binary genotype of 5 Xchr markers and simulated phenotypes; as well as summary statistics for height and BMI extracted from the GIANT consortium for chromosome 16. </p>
 <h3 id="external-summary-data">External Summary Data</h3>
 <ul>
 <li>The GIANT consortium has a list of location (mean) and scale (variance) association summary statistics available <a href="https://portals.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files">here</a> for BMI and height. </li>
@@ -161,7 +166,7 @@ head(chrXdat)
 <p><strong>2021-Dec</strong> gJLS2 v.0.2.0 is available from CRAN <a href="https://cran.r-project.org/web/packages/gJLS2/index.html">here</a>.</p>
 </li>
 </ul>
-<h2 id="contact"><strong>Contact</strong></h2>
+<h3 id="contact"><strong>Contact</strong></h3>
 <p>If you have any suggestions or questions regarding the improvement or bugs, please email Wei Q. Deng at <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#100;&#101;&#110;&#103;&#119;&#113;&#64;&#109;&#99;&#109;&#97;&#115;&#116;&#101;&#114;&#46;&#99;&#97;">&#100;&#101;&#110;&#103;&#119;&#113;&#64;&#109;&#99;&#109;&#97;&#115;&#116;&#101;&#114;&#46;&#99;&#97;</a>.</p>
 <p>For general issues of usage, it is best to post under <a href="https://github.com/WeiAkaneDeng/gJLS2/issues">Issues</a>.</p>
               
@@ -171,7 +176,7 @@ head(chrXdat)
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="GUI/" class="btn btn-neutral float-right" title="GUI">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="Methods/" class="btn btn-neutral float-right" title="Method">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
     </div>
@@ -199,7 +204,7 @@ head(chrXdat)
     
     
     
-      <span><a href="GUI/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="Methods/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
@@ -218,5 +223,5 @@ head(chrXdat)
 
 <!--
 MkDocs version : 1.2.3
-Build Date UTC : 2022-02-07 16:51:16.244200+00:00
+Build Date UTC : 2022-02-09 16:30:02.664690+00:00
 -->

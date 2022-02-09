@@ -51,6 +51,10 @@
                     </li>
                 </ul>
                 <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../Methods/">Method</a>
+                    </li>
+                </ul>
+                <ul>
                     <li class="toctree-l1"><a class="reference internal" href="../GUI/">GUI</a>
                     </li>
                 </ul>
@@ -102,10 +106,10 @@
             <div class="section">
               
                 <h1 id="using-plink-r-plugin-and-r-scripts">Using PLINK R Plugin and R scripts</h1>
-<p>Considering the computational and memory requirement of genome-wide data, the package offers two possible approaches for running the gJLS analyses: 1) using the stand-alone package in R environment (GUI or as a command-line program through \texttt{Rscript}), or 2) using the genetic software PLINK via an R plugin function.</p>
-<p>In general, we recommend the users to divide the genotype data by chromosome and maybe take advantage of parallel computing when using a server with multiple cores or processors.</p>
+<p>Considering the computational and memory requirement of genome-wide data, the package offers two possible approaches for running the gJLS analyses in non-GUI: 1) using the command-line Rscript, or 2) using the genetic software PLINK via an R plugin function.</p>
+<p>In general, we recommend the users to divide the genotype data by chromosome (internally in the scripts) and maybe take advantage of parallel computing when using a server with multiple cores or processors.</p>
 <h2 id="plink-and-an-r-plugin-function">PLINK and an R plugin function</h2>
-<p>We illustrate gJLS analyses using simulated phenotype, covariates, and real X-chromosome genotypes from 1000 Genomes Project via a simple yet adaptable R plugin function; the function can be easily modified to suit the user's needs. </p>
+<p>We illustrate gJLS analyses using simulated phenotype, covariates, and real X-chromosome genotypes from 1000 Genomes Project via a simple yet adaptable R plugin function for <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2PLINK_autosome.R">autosome</a> and  <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2PLINK_Xchr.R">X-chromsome</a>; the function can be easily modified to suit the user's needs. We plan to have a separate software just for autosomal scale analysis in the future, so here we focus on X-chromosome analyses alone.</p>
 <p>Before we start, we have to make sure both \package{gJLS2} and \package{Rserve} packages are installed. More details on the R plugin function can be found <a href="https://www.cog-genomics.org/plink/1.9/rserve">here</a>. In some cases, the default port does not work and you can specify a port number when starting \package{Rserve} and in PLINK. </p>
 <p>The following R plugin script is quite simple since the majority of the coding is now nested in the gJLS2 function. Notice that for X-chromosome, the genetic sex must be provided and this is done through setting the first column of the covariate file to be the sex variable. To run PLINK R plugin function, save this coding chunk into an R script and give it a name, such as 'run_gJLS2PLINK_Xchr.R'.</p>
 <pre><code>Rplink &lt;- function(PHENO,GENO,CLUSTER,COVAR){
@@ -159,22 +163,84 @@ require(gJLS2)
        }
 apply(GENO , 2 , f1)
 </code></pre>
-<p>This option has the flexibility to perform data filtering via PLINK, but sometimes setting up <em>Rserve</em> to communicate with PLINK properly could be a problem on some servers. We recommend running this analysis by either chromosome or smaller units when sample sizes become large as the R <em>apply()</em> function supported by PLINK is not the most efficient. There is a risk of losing the results if the analyese were not fully completed on <em>GENO</em> due to external factors, such as power loss or server downtime.</p>
-<p>To have better write control over larger analyses, we recommend using the Rscript option below.</p>
+<p>This option has the flexibility to perform data filtering via PLINK, but sometimes setting up <em>Rserve</em> to communicate with PLINK properly could be a problem on some servers. We recommend running this analysis by either chromosome or smaller units when sample sizes become large as the R <em>apply()</em> function supported by PLINK is not the most efficient. There is a risk of losing the results if the analyses were not fully completed on <em>GENO</em> due to external factors, such as power loss or server downtime.</p>
+<p>To have better write control over larger analyses (whole chromosome), we recommend splitting data into manageable chunks and combine the results after using the following bash script:</p>
+<pre><code class="language-bash">#!/bin/bash
+
+export R_LIBS_USER=~/R/x86_64-pc-linux-gnu-library/4.1/
+R CMD ~/R/x86_64-pc-linux-gnu-library/4.1/Rserve/libs/Rserve --RS-port 4221 --no-save
+
+declare -a chunk_name=()
+
+ctr=$1 ## your choice of the chunk size
+
+total=($(awk '{print NR}' ./input/chrX_5_snp))
+END=(${#total[@]})
+
+b=($(seq 1 $ctr $END))
+b+=($END)
+
+for ((i = 0; i &lt; ((${#b[@]}-1)); i++))
+do
+    echo &quot;$i&quot;
+    echo &quot;Running anaysis between ${b[$i]}&quot;
+    j=$((1 + i))
+    echo &quot;and ${b[$j]}&quot;
+
+    if [ $i -gt 0 ]; then
+        chunk_1=$((${b[$i]} + 1))
+    else
+        chunk_1=$((${b[$i]}))
+    fi
+    chunk_2=(${b[$j]})
+    snp1=$(awk -v pattern=&quot;$chunk_1&quot; 'NR==pattern' ./input/chrX_5_snp.bim | cut -f2)
+    snp2=$(awk -v pattern=&quot;$chunk_2&quot; 'NR==pattern' ./input/chrX_5_snp.bim | cut -f2)
+    echo $snp1
+    echo $snp2
+
+plink --bfile ./input/chrX_5_snp \
+--R run_gJLS2PLINK_Xchr.R \
+--R-port 4221 \
+--from $snp1 \
+--to $snp2 \
+--pheno /input/Pheno.txt \
+--pheno-name pheno1 \
+--covar /input/Pheno.txt \
+--covar-name SEX covar1 covar2 covar3 \
+--out chunk${j}.results.temp   
+done
+</code></pre>
+<p>The below script can be created and named run_chr_PLINK.sh. And the user can run on either the entire genome/chromosome by splitting data into chunk size of chunk_num:</p>
+<pre><code>chunk_num=1
+bash run_chr_PLINK.sh $chunk_num
+</code></pre>
+<p>The script can be further customized, such as to use variables in place of the genotype/pheno files, etc. to suit the needs of the user.</p>
 <h2 id="rscript">Rscript</h2>
-<p>The Rscript <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2.R">run_gJLS2.R</a> in the extdata folder can serve as a starting point to customized the analyses for each user. The arguments available in this Rscript included the very basic ones and additional ones can be added easily. A useful option is "write", where the user can specify the chunk size for results to be written in the file as the program runs. Another important feature is the "-nThreads" option, where the user can take advantage of the multiple cores and processors available from high performance computing clusters.</p>
+<p>The Rscript <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2.R">run_gJLS2.R</a> or <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2_foreach.R">run_gJLS2_foreach.R</a> in the extdata folder can serve as a starting point to customized the analyses for each user. The arguments available in this Rscript included the very basic ones and additional ones can be added easily. A useful option is "write", where the user can specify the chunk size for results to be written in the file as the program runs. Another important feature is the "-nThreads" option, where the user can take advantage of the multiple cores and processors available from high performance computing clusters.</p>
 <p>As an example, in the extdata directory, the Rscript can be executed on the command line and output the results:</p>
 <pre><code class="language-bash">Rscript run_gJLS2.R --bfile ./input/chrX_5_snp \
 --pfile ./input/Pheno.txt \
 --pheno pheno1 \
 --Xchr TRUE \
+--write 2 \
 --nThreads 2 \
 --covar SEX,covar1,covar2,covar3 \
 --out ./output/testRun.results.txt
 </code></pre>
-<p>Alternatively, summary statistics can also be analyzed using the command-line option:</p>
+<p><a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2.R">run_gJLS2.R</a> has only been tested on linux and Mac OS as it invokes <strong>mclapply</strong> from <em>parallel</em> R package, which has some known issues for multi-core computing on Windows systems. So another option using <strong>foreach</strong> from the <em>foreach</em> package is provided.</p>
+<pre><code class="language-bash">Rscript run_gJLS2_foreach.R --bfile ./input/chrX_5_snp \
+--pfile ./input/Pheno.txt \
+--pheno pheno1 \
+--Xchr TRUE \
+--nThreads 2 \
+--write 2 \
+--covar SEX,covar1,covar2,covar3 \
+--out ./output/testRun.results.txt
+</code></pre>
+<p>The <em>write</em> option here can be specified to control the number of markers results printed to file in case of any interruptions. For genome-wide/chromosome-wide analyses, it can be set to a large number such as 100 or 1000.</p>
+<p>Alternatively, summary statistics can also be analyzed using the command-line option (without the need for multi-thread as it is quite fast):</p>
 <pre><code class="language-bash">Rscript run_gJLS2.R --sumfile ./input/GIANT_BMI_chr16_gJLS_summary.txt \
---out ./output/GIANT_BMI_Sum.chr16_results.txt &amp;
+--out ./output/GIANT_BMI_Sum.chr16_results.txt
 </code></pre>
               
             </div>

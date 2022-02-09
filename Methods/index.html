@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Method - gJLS2</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Method";
+    var mkdocs_page_input_path = "Methods.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> gJLS2</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Method</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#x-chromosome-location-mean-association">X-chromosome Location (mean) association</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#x-chromosome-scale-variance-association">X-chromosome Scale (variance) association</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#references">References:</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../GUI/">GUI</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../nonGUI/">nonGUI</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../UserScenarios/">Scenarios</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">gJLS2</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Method</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="x-chromosome-association-methods">X-chromosome association methods</h1>
+<h2 id="x-chromosome-location-mean-association">X-chromosome Location (mean) association</h2>
+<p>X-chromosome association has a unique set of challenges and considering GWAS data alone, the following must be taken into consideration: </p>
+<ul>
+<li>status of X-chromosome inactivation (XCI)</li>
+<li>$G_A$: baseline allele $a$ vs $A$ </li>
+<li>$S$: sex as a confounder</li>
+<li>$G_A\times S$: interaction?</li>
+<li>$G_D$: dominance effect</li>
+</ul>
+<p>Ignoring any of the above could bring a flood of problems for inference and/or estimation of genetic effects. Our proposed approach addresses the correct inference, but the unbiased estimation of effects remains an open question. </p>
+<p>This 3 d.f. test resolves above issues simultaneously from a testing perspective (Chen et al., 2021):</p>
+<p>$$g(E(Y))=\beta_0+\beta_S Sex+\beta_{A} G_{Additive}+\beta_{D} G_{Dominance} + \beta_{GS} G\times Sex,$$
+$$H_0: \beta_A=\beta_D=\beta_{GS}=0.$$</p>
+<p>Essentially, with this model, we are free to code the $G_A$ whichever way, and the association testing results will be the same! At the same time, we have shown the statistical equivalence between</p>
+<ul>
+<li>XCI uncertainty = $G\times Sex$</li>
+<li>XCI skewness = a dominance effect</li>
+</ul>
+<p>This is a both a blessing and a curse. On the bright side, we have a great <em>testing</em> model where we do not have to worry about XCI status when performing Xchr association testing. But at the same time, because of the statistical equivalence, we cannot identify the true <em>data generative</em> model with GWAS data alone! Indeed, Song et al., (2021) has demonstrated that SNP coefficient estimated using an mis-specified <em>data generative</em> model can create biases in different situations (unmatched XCI assumptions vs. truth).</p>
+<h2 id="x-chromosome-scale-variance-association">X-chromosome Scale (variance) association</h2>
+<p>The solution here is essentially a model-based generalized Levene's test, where additional covariates and the confounding sex (S) variable can be modelled explicitly. The general framework of the approach implies a two-step regression on the genotype (G), and if additional covariates are included, they must be present in both steps:</p>
+<p><strong>Stage One: Mean models</strong>
+$$
+Y \sim \beta_0 + \beta_{G}G + \beta_{S} S + \beta_{GS}GS
+$$</p>
+<p><strong>Stage Two: Variance models</strong>
+$$
+Z<em> \sim \gamma_0 + \gamma_{G}G + \gamma_{S}S + \gamma_{GS}GS,
+$$
+where $Z^{</em>}$ is the weighted absolute residual.</p>
+<p>Let $Z = |Y - \hat{Y}|$ be the different between the observed and fitted values with respect to the <em>Mean</em> model. The weighted residual is:
+[
+z^{*} = \frac{z}{1_{(S=0)}\hat{\sigma}<em>\text{F} + 1</em>{(S=1)}\hat{\sigma}<em>\text{M}},
+]
+where $\hat{\sigma}</em>\text{F}$ and $\hat{\sigma}_\text{M}$ denote the sample standard deviations of $y$ in females and males, respectively.</p>
+<p>Note that a non-additive variance model (NAV) in stage two may also be considered to capture non-linear variance effects (via the <em>genotypic</em> option):
+$$
+Z* \sim \gamma_0 + \gamma_{G1}G1 + \gamma_{G2} G2 + \gamma_{S}S + \gamma_{G1S}G1S
+$$</p>
+<p>where $G1$ and $G2$ are indicator variables for the Bb and BB+B groups under X-inactivation, respectively, or alternatively for the Bb+B and BB groups without X-inactivation.</p>
+<p>Test for <em>Variance</em> heterogeneity is achieved in stage two by testing 
+[
+H_o: \gamma_{G}= \gamma_{GS} = 0 \quad \text{or} \gamma_{G1} =\gamma_{G2}= \gamma_{G1S}= 0
+]
+via the standard regression $F$-test, where the model is fitted using an OLS for independent samples or a generalized least square for dependent samples. </p>
+<h2 id="references">References:</h2>
+<ul>
+<li>
+<p>Chen et al. (2021).  <em>Genetic Epidemiology</em>. <a href="https://pubmed.ncbi.nlm.nih.gov/34224641/">The X factor: a robust and powerful approach to X-chromosome-inclusive whole-genome association studies.</a></p>
+</li>
+<li>
+<p>Song et al. (2021) <em>Genetic Epidemiology</em>. <a href="https://pubmed.ncbi.nlm.nih.gov/34082482/">Testing and estimation of X-chromosome SNP effects: Impact of model assumptions.</a></p>
+</li>
+<li>
+<p>Deng et al. (2019). <em>Genetic Epidemiology</em>. <a href="https://pubmed.ncbi.nlm.nih.gov/31332826/">Analytical strategies to include the X-chromosome in variance heterogeneity analyses: Evidence for trait-specific polygenic variance structure</a> </p>
+</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../GUI/" class="btn btn-neutral float-right" title="GUI">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../GUI/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -51,6 +51,10 @@
                     </li>
                 </ul>
                 <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../Methods/">Method</a>
+                    </li>
+                </ul>
+                <ul>
                     <li class="toctree-l1"><a class="reference internal" href="../GUI/">GUI</a>
                     </li>
                 </ul>
@@ -105,18 +109,10 @@
               
                 <h1 id="user-input-data-scenarios">User (input data) scenarios</h1>
 <p>The gJSL2 analyzes each SNP at a time, it is straightforward to divide-and-conquer irrespective of your GUI choice. Here I list some possible user scenarios and our recommendation on which approach to use. We also report some performance metric to help you gauge the most appropriate option for your own computing specs.</p>
-<ul>
-<li>
-<p>Assume the genotype data are either binary: <strong>plink.bed</strong>, <strong>plink.bim</strong>, and <strong>plink.fam</strong> or raw genotypes <strong>plink.raw</strong>; </p>
-</li>
-<li>
-<p>Assume the phenotype data <strong>pheno.txt</strong> has 2+k columns where k is the number of phenotypes (including covariates if necessary) and the first two columns are "FID" and "IID" (which can be used to link to genotype files); the file should contain headers;</p>
-</li>
-<li>
-<p>Assume the summary file is <strong>gJL2_summary_stats.txt</strong> with columns <strong>CHR</strong> (not essential if SNP is present), <strong>SNP</strong>, <strong>BP</strong> (not essential if SNP is present), <strong>gL</strong>, <strong>gS</strong>.</p>
-</li>
-</ul>
-<p>Following each of the user scenarios, we provide some sample codes to get you started:</p>
+<p>To help assess the computational need, we sampled with replacement from the UKB X-chromosome data (restricted to 100 SNPs) to achieve sample sizes: 1,000, 5,000, 10,000, 50,000, 100,000, 200,000, 300,000, 400,000, and repeated the joint-location-scale analysis using <em>a single core</em> with 10GB memory via 1) PLINK R plug-in (does not support multi-thread) and 2) Rscript. The reason for keeping the 100 SNPs to estimate the performance metric is because the analysis can be easily divided to chunks (and computed over multiple cores for Rscript). To compare with X-chromosome wide analyses, we also report the memory and computational time used for UKB scale (n= 488,377, m = 15,179) for a full gJLS analysis. </p>
+<p>From <strong>Figure 1</strong>, we observe roughly similar performance from the two options for sample size under 10,000, which requires ~0.30 GB and less than 30 sec of wall clock run time. This also implies that for data of this size and scale, the R-GUI options, such as Rstudio is also viable. </p>
+<p>As sample size increased, PLINK becomes more demanding in terms of memory usage, but slightly faster than Rscript option. For the full UKB scale X-chromosome analysis, the computational times needed for either are very similarly: ~16 hrs for PLINK (using 3.5GB memory) and ~ 20hrs (using 1.2GB) for Rscript. This memory efficiency of Rscript is expected as the <em>BEDmatrix</em> used only map the required portion of genotype files into memory. However, the Rscript can be parallelized over multi-threads and when using 4 cores, the wall clock run time is reduced to ~10 hrs (using GB).</p>
+<p><img alt="Figure 1.Performance metric for 100 SNPs from UKB" src="../figure/comp_spec.png" /></p>
 <h2 id="gjls-with-indvidual-level-genotype-and-phenotype-data"><strong>gJLS</strong> with <strong>INDVIDUAL-LEVEL</strong> genotype and phenotype data.</h2>
 <ul>
 <li>
@@ -134,7 +130,7 @@
 <li><em>I have "</em><em>INDVIDUAL-LEVEL</em><em>" genotype and phenotype data, but already ran the location analysis (GWAS) using other methods (e.g. PLINK or BOLT-LMM) or plan to use published GWAS p-values. I am interested in the "</em><em>gS</em><em>" analysis and the combined "</em><em>gJLS</em><em>" analyses using existing location p-values in place of the gL.</em> <span style="color:green">The user can run scale analysis alone using the preferred approach depending on sample size and computational requirements. See next scenario for combining gL and gS. </span></li>
 </ul>
 <h2 id="gjls-with-summary-level-genotype-and-phenotype-data"><strong>gJLS</strong> with <strong>SUMMARY-LEVEL</strong> genotype and phenotype data.</h2>
-<p><em>I only have "</em><em>SUMMARY-LEVEL</em><em>" data (e.g. p-values) for location and scale association from external sources (e.g. GIANT) and am interested in the "</em><em>gJLS</em><em>" analysis.</em> <span style="color:green">Once the gL and gS <em>p</em>-values have been obtained, the function <em>gJLS2s()</em> can be called in R GUI via the Rscript to produce the combined gJLS <em>p</em>-values without access to individual-level data.</span></p>
+<p><em>I only have "</em><em>SUMMARY-LEVEL</em><em>" data (e.g. p-values) for location and scale association from external sources (e.g. GIANT) and am interested in the "</em><em>gJLS</em><em>" analysis.</em> <span style="color:green">Once the gL and gS <em>p</em>-values have been obtained, the function <em>gJLS2s()</em> can be called in R GUI or computed via the Rscript to produce the combined gJLS <em>p</em>-values without access to individual-level data.</span></p>
               
             </div>
           </div>
