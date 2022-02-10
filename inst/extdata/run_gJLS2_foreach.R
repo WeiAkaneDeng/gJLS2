@@ -48,8 +48,6 @@ args <- arguments$args
 
 nThread <- opt$nThreads
 maxCores <- parallel::detectCores(logical = TRUE)
-cl <- parallel::makeCluster(min(maxCores-1, nThread))
-doParallel::registerDoParallel(cl)
 
 
 if("parallel" %in% rownames(installed.packages()) == FALSE) {
@@ -173,31 +171,46 @@ cat(paste("Writing results to output", out, "\n"))
 
 iteraR <- round(dim(geno_dat)[2]/chunk_size)
 
+
 if (runA == 0) {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages= "foreach") %dopar% {
 gJLS2::locReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr,  transformed = transformY)
 }
+stopCluster(cl)
 
 	
 } else if (runA == 1) {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::scaleReg(GENO = to_compute,Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr,  transformed = transformY, genotypic = genotypic, centre = centre)
 }
+stopCluster(cl)
 
 	
 } else {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1):min(dim(geno_dat)[2], chunk_size)], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::gJLS2(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr, transformed = transformY, genotypic = genotypic, centre = centre)
 }
+
+stopCluster(cl)
+
 
 }
 
@@ -214,14 +227,22 @@ if (j == iteraR){
 	
 if (runA == 0) {	
 
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
+
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(iteraR-1)):dim(geno_dat)[2]], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::locReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr,  transformed = transformY)
 }
 
+stopCluster(cl)
+
+
 } else if (runA == 1) {
 
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(iteraR-1)):dim(geno_dat)[2]], by="column", chunksize=round(sqrt(chunk_size))) 
 
@@ -229,13 +250,22 @@ final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="fore
 gJLS2::scaleReg(GENO = to_compute,Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr,  transformed = transformY, genotypic = genotypic, centre = centre)
 }
 
+stopCluster(cl)
+
+
 } else {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(iteraR-1)):dim(geno_dat)[2]], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::gJLS2(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr,  transformed = transformY, genotypic = genotypic, centre = centre)
 }
+stopCluster(cl)
+
+
 }
 
 write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
@@ -244,13 +274,22 @@ write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=
 
 if (runA == 0) {	
 
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
+
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::locReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr,  transformed = transformY)
 }
 
+stopCluster(cl)
+
+
 } else if (runA == 1) {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], by="column", chunksize=round(sqrt(chunk_size))) 
 
@@ -258,14 +297,21 @@ final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="fore
 gJLS2::scaleReg(GENO = to_compute,Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr,  transformed = transformY, genotypic = genotypic, centre = centre)
 }
 
+stopCluster(cl)
+
 
 } else {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::gJLS2(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = pheno_dat[,names(pheno_dat) %in% covarNames_use], Xchr=xchr,  transformed = transformY, genotypic = genotypic, centre = centre)
 }
+
+stopCluster(cl)
 
 }
 write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
@@ -284,13 +330,21 @@ iteraR <- round(dim(geno_dat)[2]/chunk_size)
 
 if (runA == 0) {	
 
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
+
 chunked_df <- iterators::iter(geno_dat[,(1):(chunk_size)], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::locReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY)
 }
 
+stopCluster(cl)
+
 } else if (runA == 1) {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1):(chunk_size)], by="column", chunksize=round(sqrt(chunk_size))) 
 
@@ -298,14 +352,21 @@ final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="fore
 gJLS2::scaleReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
 
+stopCluster(cl)
+
 
 } else {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1):(chunk_size)], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::gJLS2(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
+
+stopCluster(cl)
 
 }
 
@@ -321,13 +382,21 @@ if (j == iteraR){
 	
 if (runA == 0) {	
 
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
+
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(iteraR-1)):dim(geno_dat)[2]], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::locReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY)
 }
 
+stopCluster(cl)
+
 } else if (runA == 1) {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(iteraR-1)):dim(geno_dat)[2]], by="column", chunksize=round(sqrt(chunk_size))) 
 
@@ -335,14 +404,21 @@ final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="fore
 gJLS2::scaleReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
 
+stopCluster(cl)
+
 
 } else {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(iteraR-1)):dim(geno_dat)[2]], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::gJLS2(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
+
+stopCluster(cl)
 
 
 }
@@ -354,14 +430,22 @@ write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=
 
 if (runA == 0) {	
 
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
+
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], by="column", chunksize=round(sqrt(chunk_size))) 
 
 final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="foreach") %dopar% {
 gJLS2::locReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY)
 }
 
+stopCluster(cl)
+
 
 } else if (runA == 1) {
+
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], by="column", chunksize=round(sqrt(chunk_size))) 
 
@@ -369,8 +453,12 @@ final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="fore
 gJLS2::scaleReg(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
 
+stopCluster(cl)
+
 } else {
 
+cl <- parallel::makeCluster(min(maxCores-1, nThread))
+doParallel::registerDoParallel(cl)
 
 chunked_df <- iterators::iter(geno_dat[,(1 + chunk_size*(j-1)):(chunk_size*j)], by="column", chunksize=round(sqrt(chunk_size))) 
 
@@ -378,8 +466,7 @@ final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages="fore
 gJLS2::gJLS2(GENO = to_compute, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK,  Xchr=xchr, nCores= nThread, transformed = transformY, genotypic = genotypic, centre = centre)
 }
 
-
-
+stopCluster(cl)
 
 }
 
@@ -391,9 +478,6 @@ write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=
 }
 
 }
-
-
-stopCluster(cl)
 
 } else {
 
