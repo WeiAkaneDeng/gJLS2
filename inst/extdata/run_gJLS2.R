@@ -55,6 +55,16 @@ install.packages("parallel", repos='http://cran.us.r-project.org')
 library(parallel)	
 }
 
+checkForTcltk <- function(){
+    if ("tcltk" %in% loadedNamespaces()){
+        warning("This function cannot be used because the R tcltk
+    package is loaded. Changing to the default thread number.")
+    nThread = 1
+    }
+}
+
+checkForTcltk()
+
 if (is.null(opt$sumfile)){
 
 bimf <- opt$bfile
