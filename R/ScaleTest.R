@@ -91,7 +91,7 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
           p_out2 <- tryCatch(leveneTests_per_SNP(geno_one = GENO, SEX = SEX, Y=Y, centre = "median", transformed=TRUE),  error=function(e) NA)
 
-        if (is.null(names(GENO))){
+        if (is.null(colnames(GENO))){
 
         if (is.na(p_out2)){
           outputRes <- cbind(data.frame("CHR" = "X", "SNP" = "SNP", "gS" = p_out))
@@ -101,20 +101,20 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
              } else {
 
         if (is.na(p_out2)){
-          outputRes <-  cbind(data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = p_out))
+          outputRes <-  cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out))
           } else {
-        	outputRes <-  cbind(data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = p_out), p_out2)
+        	outputRes <-  cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out), p_out2)
           }
              }
 
              } else {
 
-        if (is.null(names(GENO))){
+        if (is.null(colnames(GENO))){
 
      	outputRes <- data.frame("CHR" = "X", "SNP" = "SNP", "gS" = p_out)
 
                } else {
-    	outputRes <- data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = p_out)
+    	outputRes <- data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = p_out)
                }
           }
 
@@ -126,16 +126,16 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
         p_out2 <- tryCatch(leveneTests_per_SNP(geno_one = GENO, Y=Y, centre = "median", transformed=TRUE),  error=function(e) NA)
 
-        if (is.null(colnames(GENO))|is.null(names(GENO))){
+        if (is.null(colnames(GENO)))){
           outputRes <- cbind(data.frame("SNP" = "SNP", "gS" = p_out), p_out2)
 
         } else {
-          outputRes <-  cbind(data.frame("SNP" = names(GENO), "gS" = p_out), p_out2)
+          outputRes <-  cbind(data.frame("SNP" = colnames(GENO), "gS" = p_out), p_out2)
         }
 
       } else {
 
-        if (is.null(colnames(GENO))|is.null(names(GENO))){
+        if (is.null(colnames(GENO))){
           outputRes <- data.frame("SNP" = "SNP", "gS" = p_out)
 
         } else {
@@ -388,7 +388,7 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
       }
       }
 
-        if (is.null(names(GENO))){
+        if (is.null(colnames(GENO))){
 
           if (sum(change_to_NA) == length(output_test2)){
             outputRes <- cbind(data.frame("CHR" = "X", "SNP" = paste("SNP_",1:length(GENO), sep=""), "gS" = unlist(p_out)))
@@ -399,19 +399,19 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
         } else {
 
        if (sum(change_to_NA) == length(output_test2)){
-          outputRes <- cbind(data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = unlist(p_out)))
+          outputRes <- cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = unlist(p_out)))
           } else {
-          outputRes <- cbind(data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = unlist(p_out)), do.call(rbind, p_out2))
+          outputRes <- cbind(data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = unlist(p_out)), do.call(rbind, p_out2))
           }
         }
 
       } else {
 
-        if (is.null(names(GENO))){
+        if (is.null(colnames(GENO))){
           outputRes <- data.frame("CHR" = "X", "SNP" = paste("SNP_",1:length(GENO), sep=""), "gS" = unlist(p_out))
 
         } else {
-          outputRes <- data.frame("CHR" = "X", "SNP" = names(GENO), "gS" = unlist(p_out))
+          outputRes <- data.frame("CHR" = "X", "SNP" = colnames(GENO), "gS" = unlist(p_out))
         }
       }
 
@@ -470,7 +470,7 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
         }
         }
 
-        if (is.null(names(GENO))){
+        if (is.null(colnames(GENO))){
 
           if (sum(change_to_NA) == length(output_test2)){
             outputRes <- cbind(data.frame("SNP" = paste("SNP_",1:length(GENO), sep=""), "gS" = unlist(p_out)))
@@ -480,18 +480,18 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
         } else {
           if (sum(change_to_NA) == length(output_test2)){
-            outputRes <- cbind(data.frame("SNP" = names(GENO), "gS" = unlist(p_out)))
+            outputRes <- cbind(data.frame("SNP" = colnames(GENO), "gS" = unlist(p_out)))
           } else {
-          outputRes <- cbind(data.frame("SNP" = names(GENO), "gS" = unlist(p_out)), do.call(rbind, p_out2))
+          outputRes <- cbind(data.frame("SNP" = colnames(GENO), "gS" = unlist(p_out)), do.call(rbind, p_out2))
           }
         }
 
       } else {
 
-        if (is.null(names(GENO))){
+        if (is.null(colnames(GENO))){
           outputRes <- data.frame("SNP" = paste("SNP_",1:length(GENO), sep=""), "gS" = unlist(p_out))
         } else {
-          outputRes <- data.frame("SNP" = names(GENO), "gS" = unlist(p_out))
+          outputRes <- data.frame("SNP" = colnames(GENO), "gS" = unlist(p_out))
         }
       }
 
