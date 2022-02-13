@@ -91,6 +91,11 @@ install.packages("BGData", repos='http://cran.us.r-project.org', dependencies=T)
 }
 
 
+if("bigstatsr" %in% rownames(installed.packages()) == FALSE) {
+print("bigstatsr not installed, trying to intall now ...")
+install.packages("bigstatsr", repos='http://cran.us.r-project.org')
+}
+
 nTasks <- opt$nTasks
 nMaxcores = as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 nTasks_use <- as.numeric(max(1, min(nTasks, nMaxcores, na.rm=T), na.rm=T))
@@ -152,6 +157,7 @@ if (chunk_size < 100 & nTasks_use > 1) {
 warning("chunk size too small for the number of workers to work efficiently. Increasing the chunk size to 100")
 chunk_size <- min(100, nbSNPs)
 }
+
 iteraR <- max(1, ceiling(nbSNPs/chunk_size))
 
 cat(paste("Expecting to run", iteraR, "chunks in total \n"))
@@ -211,12 +217,13 @@ write.table(final_output, file = out, col.names=T, row.names=F, quote=F, sep="\t
 
 } else {
 		
-chunk_list <- split(1:nbSNPs, ceiling(seq_along(1:nbSNPs)/chunk_size))
+chunk_list <- bigstatsr:::CutBySize(nbSNPs, nb = chunk_size)
+
 
 for (j in 1:iteraR){
 	
 	cat(paste("Running chunk num", j, "\n"))
-	geno_dat <- geno(bg)[,chunk_list[[j]]]
+	geno_dat <- geno(bg)[,chunk_list[j,]]
 	final_output <- chunkedMap(X = geno_dat, FUN = runFunction, nCores=nTasks_use)
 	cat(paste("Writing results to output", out, "\n"))
 

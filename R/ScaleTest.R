@@ -126,7 +126,7 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
 
         p_out2 <- tryCatch(leveneTests_per_SNP(geno_one = GENO, Y=Y, centre = "median", transformed=TRUE),  error=function(e) NA)
 
-        if (is.null(colnames(GENO)))){
+        if (is.null(colnames(GENO))){
           outputRes <- cbind(data.frame("SNP" = "SNP", "gS" = p_out), p_out2)
 
         } else {
