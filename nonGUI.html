@@ -286,17 +286,17 @@ bash run_chr_PLINK.sh $chunk_num</code></pre>
 --nThreads 2 \
 --covar SEX,covar1,covar2,covar3 \
 --out ./output/testRun.results.txt</code></pre>
-<p><a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2.R">run_gJLS2.R</a> has only been tested on linux and Mac OS as it invokes <strong>mclapply</strong> from <em>parallel</em> R package, which has some known issues for multi-core computing on Windows systems. So another option using <strong>foreach</strong> from the <em>foreach</em> package is provided.</p>
+<p><a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2.R">run_gJLS2.R</a> has only been tested on linux and Mac OS as it invokes <strong>mclapply</strong> from <em>parallel</em> R package, which has some known issues for multi-core computing on Windows systems. Also, the current implementation of multi-core does not work well on biobank scale data (needing to create copies of the data over cores) and renders the nTasks option useless (no significant improvement on speed on Linux, but is okay on Mac OS). So another option using <strong>foreach</strong> from the <em>foreach</em> package is provided:</p>
 <pre class="bash"><code>Rscript run_gJLS2_foreach.R --bfile ./input/chrX_5_snp \
 --pfile ./input/Pheno.txt \
 --pheno pheno1 \
 --Xchr TRUE \
---nThreads 2 \
+--nTasks 2 \
 --write 2 \
 --covar SEX,covar1,covar2,covar3 \
 --out ./output/testRun.results.txt</code></pre>
 <p>The <em>write</em> option here can be specified to control the number of markers results printed to file in case of any interruptions. For genome-wide/chromosome-wide analyses, it can be set to a large number such as 100 or 1000.</p>
-<p>Alternatively, summary statistics can also be analyzed using the command-line option (without the need for multi-thread as it is quite fast):</p>
+<p>Alternatively, summary statistics can also be analyzed using the command-line option (without the need for multi-cores as it is quite fast):</p>
 <pre class="bash"><code>Rscript run_gJLS2.R --sumfile ./input/GIANT_BMI_chr16_gJLS_summary.txt \
 --out ./output/GIANT_BMI_Sum.chr16_results.txt</code></pre>
 </div>
