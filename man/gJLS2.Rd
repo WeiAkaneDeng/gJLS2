@@ -67,13 +67,15 @@ We highly recommend to quantile-normally transform \code{Y} for non-symmetricall
 For the moment, only quantitative trait \code{Y} is accepted as the subsequent generalized joint location scale (gJLS) analyses require the variance be calculated on quantitative traits. However, we are working on to include binary response for the generalized JLS analyses in the next update of gJLS.
 }
 \examples{
-N <- 1000
+N <- 10000
 genDAT <- rbinom(N, 2, 0.3)
 sex <- rbinom(N, 1, 0.5)+1
 y <- rnorm(N)
 covar <- matrix(rnorm(N*10), ncol=10)
 
-gJLS2(GENO=data.frame("SNP1" = genDAT, "aSNP1" = genDAT), SEX=sex, Y=y, COVAR=covar)
+system.time(gJLS2(GENO=data.frame("SNP1" = genDAT, "aSNP1" = genDAT), SEX=sex, Y=y, COVAR=covar, nCores=1))
+
+system.time(gJLS2(GENO=data.frame("SNP1" = genDAT, "aSNP1" = genDAT), SEX=sex, Y=y, COVAR=covar, nCores=2))
 
 gJLS2(GENO=genDAT, SEX=sex, Y=y, COVAR=covar , Xchr=TRUE)
 

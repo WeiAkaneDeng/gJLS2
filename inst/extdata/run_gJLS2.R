@@ -96,6 +96,7 @@ print("bigstatsr not installed, trying to intall now ...")
 install.packages("bigstatsr", repos='http://cran.us.r-project.org')
 }
 
+
 nTasks <- opt$nTasks
 nMaxcores = as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
 nTasks_use <- as.numeric(max(1, min(nTasks, nMaxcores, na.rm=T), na.rm=T))
@@ -152,11 +153,7 @@ nbSNPs <- dim(bedFiles)[2]
 
 cat(paste("Reading", nbSNPs, "SNPs from the bed file \n"))
 
-if (chunk_size < 100 & nTasks_use > 1) {
-
-warning("chunk size too small for the number of workers to work efficiently. Increasing the chunk size to 100")
-chunk_size <- min(100, nbSNPs)
-}
+chunk_size <- min(chunk_size, nbSNPs)
 
 iteraR <- max(1, ceiling(nbSNPs/chunk_size))
 
@@ -218,7 +215,6 @@ write.table(final_output, file = out, col.names=T, row.names=F, quote=F, sep="\t
 } else {
 		
 chunk_list <- bigstatsr:::CutBySize(nbSNPs, nb = chunk_size)
-
 
 for (j in 1:iteraR){
 	

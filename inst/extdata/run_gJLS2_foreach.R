@@ -147,7 +147,7 @@ checkForTcltk()
 if (runA == 0) {
 
 runFunction <- function(ee){
-gJLS2::locReg(GENO = ee, Y = Y_PLINK, SEX = SEX_cov_PLINK, COVAR = COV_plink, Xchr=xchr, transformed = transformY)
+gJLS2::locReg(GENO = ee, Y = pheno_dat[,names(pheno_dat) %in% phenoNames[1]], SEX = SEX_cov_PLINK, COVAR = COV_plink, Xchr=xchr, transformed = transformY)
 }
 
 } else if (runA == 1) {
@@ -225,22 +225,25 @@ cat(paste("Trying to include SEX from .fam file \n"))
 
 if (iteraR == 1) {
 
-registerDoParallel(cores=nTasks_use)# Shows the number of Parallel Workers to be used
-getDoParWorkers()# you can compare with the number of actual workers
-
 geno_dat <- geno(bg)
 
 cat(paste("Running the 1st chunk", "\n"))
 
-chunked_df <- iterators::iter(geno_dat, by="column", chunksize=runChunkSize) 
+	run_num <- bigstatsr:::CutBySize(nbSNPs, nb = 4)
+	run_list <- lapply(1:dim(run_num)[1], function(ee) run_num[ee,1]:run_num[ee,2])
+    geno_dat_list <- lapply(1:length(run_list), function(ee) geno_dat[,run_list[[ee]]])
+    # keep data in physical memory:
 
-final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages= "foreach") %dopar% {
-runFunction(ee = to_compute)
-}
+	cl <- parallel::makeCluster(2)
+	doParallel::registerDoParallel(cl)
+     
+    final_output <- foreach(jj=1:length(run_list), .packages= c("foreach"), .combine = 'rbind') %dopar% {
+	runFunction(geno_dat_list[[jj]])}
+	parallel::stopCluster(cl)
 
 cat(paste("Writing results to output", out, "\n"))
-
 write.table(final_output, file = out, col.names=T, row.names=F, quote=F, sep="\t")
+
 
 } else {
 	
@@ -248,27 +251,38 @@ write.table(final_output, file = out, col.names=T, row.names=F, quote=F, sep="\t
 
 for (j in 1:iteraR){
 	
-	registerDoParallel(cores=nTasks_use)# Shows the number of Parallel Workers to be used
-	getDoParWorkers()# you can compare with the number of actual workers
-	
-	geno_dat <- geno(bg)[,chunk_list[[j]]]
-	chunked_df <- iterators::iter(geno_dat, by="column", chunksize=runChunkSize) 
+	run_size <- length(chunk_list[[j]])
+	run_num <- bigstatsr:::CutBySize(run_size, nb = 4)
+	run_list <- lapply(1:dim(run_num)[1], function(ee) run_num[ee,1]:run_num[ee,2])
 
+	geno_dat <- geno(bg)[,chunk_list[[j]]]
+    geno_dat_list <- lapply(1:length(run_list), function(j) geno_dat[,run_list[[j]]])
+    #lapply(geno_dat_list, dim)
+
+
+	cl <- parallel::makeCluster(2)
+	doParallel::registerDoParallel(cl)
 	cat(paste("Running chunk num", j, "\n"))
-	final_output <- foreach(to_compute=chunked_df, .combine = rbind, .packages= "foreach") %dopar% {
-	runFunction(ee = to_compute)
-	}
+
+	#start_time <- Sys.time()
+	final_output <- foreach::foreach(jj=1:4, .packages= "foreach", .combine = 'rbind') %dopar% {
+	runFunction(geno_dat_list[[jj]])}
+	#end_time <- Sys.time()
+	#end_time - start_time
+	parallel::stopCluster(cl)
+   
 	cat(paste("Writing results to output", out, "\n"))
+	rm(geno_dat_list)
+	
 
 if (j==1){
 	write.table(final_output, file = out, col.names=T, row.names=F, quote=F, sep="\t")
 } else {
 	write.table(final_output, file = out, col.names=F, row.names=F, quote=F, append=TRUE, sep="\t")
 }
-				}
+		}
 
-			}
-}
+		}
 
 
 } else {
