@@ -61,6 +61,8 @@
                 <ul class="current">
                     <li class="toctree-l1 current"><a class="reference internal current" href="./">nonGUI</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#data-quality-controls">Data quality controls</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#plink-and-an-r-plugin-function">PLINK and an R plugin function</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#rscript">Rscript</a>
@@ -108,6 +110,9 @@
                 <h1 id="using-plink-r-plugin-and-r-scripts">Using PLINK R Plugin and R scripts</h1>
 <p>Considering the computational and memory requirement of genome-wide data, the package offers two possible approaches for running the gJLS analyses in non-GUI: 1) using the command-line Rscript, or 2) using the genetic software PLINK via an R plugin function.</p>
 <p>In general, we recommend the users to divide the genotype data by chromosome (internally in the scripts) and maybe take advantage of parallel computing when using a server with multiple cores or processors.</p>
+<h2 id="data-quality-controls">Data quality controls</h2>
+<p>Besides the usual genotype QCs, running X-chromosome location and scale analysis in general require that the <strong>smallest genotype counts should be at least 30</strong> for proper estimation of variance. </p>
+<p>This is usually not a problem and can be filtered using PLINK by combining the proper genotype rate <em>--geno</em> and minor allele frequency <em>--maf</em> filters. For GUI or individual analysis, the threshold can be more lenient and the X-chromosome association can automatically return gender-specific or using another method (method 2 - excluding the genotypic interaction with sex) to deal with counts less than 30. But when running results X-chromosome-wide, it is better to perform quality control ahead of the analyses.</p>
 <h2 id="plink-and-an-r-plugin-function">PLINK and an R plugin function</h2>
 <p>We illustrate gJLS analyses using simulated phenotype, covariates, and real X-chromosome genotypes from 1000 Genomes Project via a simple yet adaptable R plugin function for <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2PLINK_autosome.R">autosome</a> and  <a href="https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/run_gJLS2PLINK_Xchr.R">X-chromsome</a>; the function can be easily modified to suit the user's needs. We plan to have a separate software just for autosomal scale analysis in the future, so here we focus on X-chromosome analyses alone.</p>
 <p>Before we start, we have to make sure both \package{gJLS2} and \package{Rserve} packages are installed. More details on the R plugin function can be found <a href="https://www.cog-genomics.org/plink/1.9/rserve">here</a>. In some cases, the default port does not work and you can specify a port number when starting \package{Rserve} and in PLINK. </p>
