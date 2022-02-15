@@ -265,7 +265,7 @@ for (j in 1:iteraR){
 	cat(paste("Running chunk num", j, "\n"))
 
 	#start_time <- Sys.time()
-	final_output <- foreach::foreach(jj=1:4, .packages= "foreach", .combine = 'rbind') %dopar% {
+	final_output <- foreach::foreach(jj=1:length(run_list), .packages= "foreach", .combine = 'rbind') %dopar% {
 	runFunction(geno_dat_list[[jj]])}
 	#end_time <- Sys.time()
 	#end_time - start_time
