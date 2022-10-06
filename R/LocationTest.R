@@ -92,7 +92,7 @@ locReg <- function(GENO, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, XchrMethod = 3
   if (missing(Y))
     stop("The quantitative trait input is missing.")
 
-  if (class(Y)!="numeric" & class(Y)!="integer")
+  if (!is.numeric(Y) & !is.integer(Y))
     stop("Please make sure the quantitaitve trait is a numeric vector or a binary outcome is an integer vector.")
 
   numCores <- parallel::detectCores()
@@ -323,7 +323,7 @@ locReg_per_SNP <- function(geno_one, Y, SEX = NULL, COVAR = NULL, Xchr=FALSE, Xc
   if (missing(Y))
     stop("The quantitative trait input is missing.")
 
-  if (class(Y)!="numeric" & class(Y)!="integer")
+  if (!is.numeric(Y) & !is.integer(Y))
     stop("Please make sure the quantitaitve trait is a numeric vector or a binary outcome is an integer vector.")
 
 	CC_study <- ifelse(length(unique(Y[!is.na(Y)]))==2, TRUE, FALSE)

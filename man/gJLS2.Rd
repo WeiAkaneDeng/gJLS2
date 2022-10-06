@@ -51,7 +51,7 @@ gJLS2(
 
 \item{XchrMethod}{an integer taking values 0 (reports all models), 1.1, 1.2, 2, 3, for the choice of X-chromosome location association testing models; for more details, see \code{\link{locReg}}.}
 
-\item{nCores}{optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}.}
+\item{nCores}{optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}. Currently not available for windows machines.}
 }
 \value{
 a vector of location, scale and combined gJLS p-values for each SNP.
@@ -73,11 +73,18 @@ sex <- rbinom(N, 1, 0.5)+1
 y <- rnorm(N)
 covar <- matrix(rnorm(N*10), ncol=10)
 
-system.time(gJLS2(GENO=data.frame("SNP1" = genDAT, "aSNP1" = genDAT), SEX=sex, Y=y, COVAR=covar, nCores=1))
 
-system.time(gJLS2(GENO=data.frame("SNP1" = genDAT, "aSNP1" = genDAT), SEX=sex, Y=y, COVAR=covar, nCores=2))
+if (Sys.info()["sysname"]!="Windows") {
+system.time(gJLS2(GENO=data.frame("SNP1" = genDAT,
+ "aSNP1" = genDAT), SEX=sex, Y=y,
+ COVAR=covar, nCores=2))
+ } else {
+system.time(gJLS2(GENO=data.frame("SNP1" = genDAT,
+ "aSNP1" = genDAT), SEX=sex, Y=y,
+ COVAR=covar, nCores=1))
+}
 
-gJLS2(GENO=genDAT, SEX=sex, Y=y, COVAR=covar , Xchr=TRUE)
+gJLS2(GENO=genDAT, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 
 
 }

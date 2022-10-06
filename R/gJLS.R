@@ -16,7 +16,7 @@
 #' @param cov.structure optional: should be one of standard classes of correlation structures listed in \code{corClasses} from \pkg{R} package \pkg{nlme}. See \code{?corClasses}. The most commonly used option is \code{corCompSymm} for a compound symmetric correlation structure. This option currently only applies to autosomal SNPs.
 #' @param clust optional: a factor indicating the grouping of samples; it should have at least two distinct values. It could be the family ID (FID) for family studies. This option currently only applies to autosomal SNPs.
 #' @param XchrMethod an integer taking values 0 (reports all models), 1.1, 1.2, 2, 3, for the choice of X-chromosome location association testing models; for more details, see \code{\link{locReg}}.
-#' @param nCores optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}.
+#' @param nCores optional: an integer for the number of processors/cores to split the computation. The default option is 1, without parallelizing. To check the maximum number allowed for your machine try: \code{parallel::detectCores()}. Currently not available for windows machines.
 #'
 #'
 #' @importFrom methods is
@@ -42,11 +42,18 @@
 #' y <- rnorm(N)
 #' covar <- matrix(rnorm(N*10), ncol=10)
 #'
-#' system.time(gJLS2(GENO=data.frame("SNP1" = genDAT, "aSNP1" = genDAT), SEX=sex, Y=y, COVAR=covar, nCores=1))
 #'
-#' system.time(gJLS2(GENO=data.frame("SNP1" = genDAT, "aSNP1" = genDAT), SEX=sex, Y=y, COVAR=covar, nCores=2))
+#' if (Sys.info()["sysname"]!="Windows") {
+#' system.time(gJLS2(GENO=data.frame("SNP1" = genDAT,
+#'  "aSNP1" = genDAT), SEX=sex, Y=y,
+#'  COVAR=covar, nCores=2))
+#'  } else {
+#' system.time(gJLS2(GENO=data.frame("SNP1" = genDAT,
+#'  "aSNP1" = genDAT), SEX=sex, Y=y,
+#'  COVAR=covar, nCores=1))
+#' }
 #'
-#' gJLS2(GENO=genDAT, SEX=sex, Y=y, COVAR=covar , Xchr=TRUE)
+#' gJLS2(GENO=genDAT, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #'
 #'
 #' @author  Wei Q. Deng \email{dengwq@mcmaster.ca}, Lei Sun \email{lei.sun@utoronto.ca}
@@ -63,7 +70,7 @@ gJLS2 <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transformed=T
   if (missing(Y))
     stop("The quantitative trait input is missing.")
 
-  if (class(Y)!="numeric")
+  if (!is.numeric(Y))
     stop("Please make sure the quantitaitve trait is a numeric vector.")
 
   suppressWarnings(locP <- locReg(GENO=GENO, Y = Y, SEX=SEX, COVAR=COVAR, Xchr=Xchr, XchrMethod = XchrMethod, transformed = transformed, related = related, cov.structure = cov.structure, clust = clust, nCores = nCores))

@@ -65,24 +65,24 @@ leveneRegA_per_SNP(geno_one=genDAT, Y=Y, COVAR=covar,
 related=TRUE, clust = factor(rbinom(N, 2, 0.6)))
 
 
-# dosage genotypes example:
-library("MCMCpack")
-a <- 0.3
-geno <- rbinom(N, 2, 0.3)
-a <- 0.3 ## uncertainty
-genPP <- rbind(rdirichlet(sum(geno==0),c(a,(1-a)/2,(1-a)/2)),
-               rdirichlet(sum(geno==1),c((1-a)/2,a,(1-a)/2)),
-               rdirichlet(sum(geno==2),c((1-a)/2,(1-a)/2,a)))
+# dosage genotypes example (not run):
+#library("MCMCpack")
+#a <- 0.3
+#geno <- rbinom(N, 2, 0.3)
+#a <- 0.3 ## uncertainty
+#genPP <- rbind(rdirichlet(sum(geno==0),c(a,(1-a)/2,(1-a)/2)),
+#               rdirichlet(sum(geno==1),c((1-a)/2,a,(1-a)/2)),
+#               rdirichlet(sum(geno==2),c((1-a)/2,(1-a)/2,a)))
+#
+#leveneRegA_per_SNP(geno_one=genPP, Y=Y, COVAR=covar)
+#leveneRegA_per_SNP(geno_one=genPP, Y=Y, COVAR=covar,
+#genotypic=TRUE)
 
-leveneRegA_per_SNP(geno_one=genPP, Y=Y, COVAR=covar)
-leveneRegA_per_SNP(geno_one=genPP, Y=Y, COVAR=covar,
-genotypic=TRUE)
-
-# dosage and related samples:
-leveneRegA_per_SNP(geno_one=genPP, Y=Y, COVAR=covar,
-related=TRUE, clust = factor(rbinom(N, 1, 0.3)))
-leveneRegA_per_SNP(geno_one=genPP, Y=Y, COVAR=covar,
-related=TRUE, clust = factor(rbinom(N, 1, 0.3)), genotypic=TRUE)
+# dosage and related samples (not run):
+#leveneRegA_per_SNP(geno_one=genPP, Y=Y, COVAR=covar,
+#related=TRUE, clust = factor(rbinom(N, 1, 0.3)))
+#leveneRegA_per_SNP(geno_one=genPP, Y=Y, COVAR=covar,
+#related=TRUE, clust = factor(rbinom(N, 1, 0.3)), genotypic=TRUE)
 
 
 

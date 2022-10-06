@@ -87,7 +87,7 @@ leveneRegX_per_SNP <- function(geno_one, SEX, Y, COVAR = NULL, genotypic = FALSE
 
   ## transform before adjust for covariates
 
-  if (class(Y)!="numeric")
+  if (!is.numeric(Y))
     stop("Please make sure the quantitaitve trait is a numeric vector.")
 
   if (transformed){

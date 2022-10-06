@@ -1,6 +1,6 @@
 Package: gJLS2
 Title: A Generalized Joint Location and Scale Framework for Association Testing
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: 
     c(person(given = "Wei",
            family = "Deng",
@@ -18,8 +18,12 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
-    markdown
+    markdown, 
+    ggplot2,
+    moments,
+    MASS,
+    MCMCpack
 VignetteBuilder: knitr
-Imports: methods, nlme, quantreg, MCMCpack, MASS, parallel, plyr, ggplot2, moments
+Imports: methods, nlme, quantreg, parallel, plyr
 Depends:
     R (>= 3.6.0)

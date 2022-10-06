@@ -65,8 +65,8 @@ scaleReg <- function(GENO, Y, COVAR = NULL, SEX = NULL, Xchr = FALSE, transforme
   if (missing(Y))
       stop("The quantitative trait input is missing.")
 
-  if (class(Y)!="numeric")
-      stop("Please make sure the quantitaitve trait is a numeric vector.")
+  if (!is.numeric(Y))
+    stop("Please make sure the quantitaitve trait is a numeric vector.")
 
   if (missing(GENO))
      stop("The genotype input is missing.")

@@ -171,7 +171,7 @@ As a general comment, caution should be exercised to combine *p*-values using Fi
 
 ## Imputed SNPs
 
-To improve coverage and boost power of detectection, imputation is now routinely used in genome-wide association studies. The process of imputation has been made easy by the publicly available reference panels (1000 Genomes Project) and softwares such as Impute2 (Howie et al., 2009; PLoS Genetics) and Beagle (Browning and Browning, 2009; American Journal of Human Genetics).
+To improve coverage and boost power of detection, imputation is now routinely used in genome-wide association studies. The process of imputation has been made easy by the publicly available reference panels (1000 Genomes Project) and softwares such as Impute2 (Howie et al., 2009; PLoS Genetics) and Beagle (Browning and Browning, 2009; American Journal of Human Genetics).
 
 For a sample with $n$ individuals, the imputed genotypes can be a matrix of posterior genotype probabilities of dimension $n\times 3$ with each column corresponding to a particular genotype (denoted by $\eta(A/A)$, $\eta(A/B)$ or $\eta(B/B)$). 
 
@@ -194,7 +194,7 @@ Following Acar and Sun (2013), here we simulate the imputed data by introducing 
 
 
 ```r
-library("MCMCpack")
+# library("MCMCpack")
 #> Loading required package: coda
 #> Loading required package: MASS
 #> ##
@@ -204,13 +204,13 @@ library("MCMCpack")
 #> ## Support provided by the U.S. National Science Foundation
 #> ## (Grants SES-0350646 and SES-0350613)
 #> ##
-N <- 300 
-geno <- rbinom(N, 2, 0.3)
-a <- 0.3 ## uncertainty
-genPP <- rbind(rdirichlet(sum(geno==0),c(a,(1-a)/2,(1-a)/2)), 
-        rdirichlet(sum(geno==1),c((1-a)/2,a,(1-a)/2)),
-        rdirichlet(sum(geno==2),c((1-a)/2,(1-a)/2,a)))
-head(genPP);
+#N <- 300 
+#geno <- rbinom(N, 2, 0.3)
+#a <- 0.3 ## uncertainty
+#genPP <- rbind(rdirichlet(sum(geno==0),c(a,(1-a)/2,(1-a)/2)), 
+#        rdirichlet(sum(geno==1),c((1-a)/2,a,(1-a)/2)),
+#        rdirichlet(sum(geno==2),c((1-a)/2,(1-a)/2,a)))
+#head(genPP);
 #>           [,1]         [,2]        [,3]
 #> [1,] 0.7757769 2.218303e-01 0.002392827
 #> [2,] 0.9984017 3.013217e-07 0.001597968
@@ -218,7 +218,7 @@ head(genPP);
 #> [4,] 0.3116164 3.995173e-03 0.684388445
 #> [5,] 0.9932653 6.172884e-03 0.000561811
 #> [6,] 0.2234763 7.686409e-01 0.007882812
-summary(rowSums(genPP))
+#summary(rowSums(genPP))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #>       1       1       1       1       1       1
 ```
@@ -281,7 +281,7 @@ locReg(GENO=genoX, SEX=sex, Y=y, COVAR=covar, Xchr=TRUE)
 #> 1   X SNP 0.8516859
 ```
 
-The scale and joint analysis can be performed similarly following the default options of inverse-normal transformation (<tt>transformed=TRUE</tt>), using least absolute devation (LAD) to estimate residuals in the first stage (<tt>loc_alg="LAD"</tt>), and assuming an additive model (<tt>genotypic=FALSE</tt>):
+The scale and joint analysis can be performed similarly following the default options of inverse-normal transformation (<tt>transformed=TRUE</tt>), using least absolute deviation (LAD) to estimate residuals in the first stage (<tt>loc_alg="LAD"</tt>), and assuming an additive model (<tt>genotypic=FALSE</tt>):
 
 
 ```r
@@ -415,7 +415,7 @@ In general, we recommend the users to divide the genotype data by chromosome and
 
 The Rscript ("run_gJLS2.R") in the extdata folder can serve as a starting point to customized the analyses for each user. The arguments available in this Rscript included the very basic ones and additional ones can be added easily. A useful option is "write", where the user can specify the chunk size for results to be written in the file as the program runs. Another important feature is the "nThreads" option, where the user can take advantage of the multiple cores and processors available from high performance computing clusters.
 
-As an example, in the extdata directory, the Rscript can be excuted on the command line and output the results:
+As an example, in the extdata directory, the Rscript can be executed on the command line and output the results:
 
 
 ```bash
@@ -430,12 +430,12 @@ Rscript run_gJLS2.R --bfile ./input/chrX_5_snp \
 
 Alternatively, summary statistics can also be analyzed using the command-line option:
 
-
 ```bash
 Rscript run_gJLS2.R --sumfile ./input/GIANT_BMI_chr16_gJLS_summary.txt \
 --out ./output/GIANT_BMI_Sum.chr16_results.txt &
 ```
 
+The input and output data can be found [here](https://github.com/WeiAkaneDeng/gJLS2/blob/main/inst/extdata/input.zip).
 
 ## PLINK and an R plugin function
 
@@ -516,7 +516,7 @@ The gJSL2 analyzes each SNP at a time, it is straightforward to divide-and-conqu
 
 * *I have genotype and phenotype data and am interested in running the gJLS analyses from scratch using the R package.* 
   + *I have a relatively small dataset with < 5,000 samples and want to investigate particular markers or gene-set analysis.* <span style="color:green">The R GUI should be sufficient for this purpose. PLINK binary data can be read with "BEDMatrix" and the .raw genotypes can be read in directly as a data.frame.</span>
-  + *I have a relatively small dataset with < 5,000 samples and want to perform a genome-wide analysis.* <span style="color:green">We recommend either the Rscript or PLINK R plugin as the analysis is straighforward and simple to break the job by chromosome or apply other filters within PLINK.</span>
+  + *I have a relatively small dataset with < 5,000 samples and want to perform a genome-wide analysis.* <span style="color:green">We recommend either the Rscript or PLINK R plugin as the analysis is straightforward and simple to break the job by chromosome or apply other filters within PLINK.</span>
   + *I have datasets with > 5,000 samples.* <span style="color:green">The Rscript option will work nicely on binary files using "BEDMatrix", the multiple cores option can speed up the computational time, and the user specified write size makes sure that no results are lost in the process.</span>
 
 
