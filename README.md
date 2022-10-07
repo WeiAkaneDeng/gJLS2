@@ -54,7 +54,7 @@ Details on how to prepare data, set up for each options can be found [here](http
 
 ## Contact or Reporting issues
 
-Any issues can be reported under [Issues](https://github.com/WeiAkaneDeng/gJLS2/issues) and if not resolved within a week, please email [Wei](dengwq@mcmaster.ca).
+Any issues can be reported under [Issues](https://github.com/WeiAkaneDeng/gJLS2/issues) and if not resolved within a week, please shoot me an email! 
 
 
 
